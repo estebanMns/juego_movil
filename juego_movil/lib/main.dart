@@ -1,22 +1,7 @@
 import 'package:flutter/material.dart';
-import 'screens/home.dart';
+import './src/app.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const App());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'El Robo de Molly',
-      debugShowCheckedModeBanner: false, // Quita el banner de debug
-      theme: ThemeData(
-        primarySwatch: Colors.purple,
-      ),
-      home: const Home(), // 👈 Aquí va tu pantalla Home
-    );
-  }
-}
