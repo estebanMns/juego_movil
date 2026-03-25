@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'lobby.dart';
+import 'login.dart';
 
 class Home extends StatelessWidget {
   const Home({super.key});
@@ -161,7 +161,7 @@ class Home extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const Lobby()),
+                            builder: (context) => const Login()),
                       );
                     },
                     child: Container(
