@@ -1,7 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'PlayerProfileScreen.dart';
-// Asegúrate de que la ruta y el nombre del archivo sean correctos
 import 'levelMap.dart'; 
 
 class Lobby extends StatefulWidget {
