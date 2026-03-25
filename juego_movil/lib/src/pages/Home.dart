@@ -215,7 +215,7 @@ class Home extends StatelessWidget {
                           ),
                           SizedBox(width: screenWidth * 0.03),
                           Text(
-                            'JUGAR',
+                            'Iniciar',
                             style: TextStyle(
                               fontSize: screenWidth * 0.075,
                               fontWeight: FontWeight.w900,
