@@ -45,7 +45,7 @@ class PlayerProfileController extends GetxController with GetSingleTickerProvide
     player.value = const PlayerModel(
       uid: 'u001',
       username: 'Perro Blanco',
-      avatarUrl: 'assets/images/avatar.png',
+      avatarUrl: 'assets/images/kovuIcon.jpeg', // Imagen local del personaje
       coins: 0,
       level: 0,
       xp: 0,

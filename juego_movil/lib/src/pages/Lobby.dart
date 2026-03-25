@@ -202,7 +202,7 @@ class TopHud extends StatelessWidget {
                 ),
                 child: const CircleAvatar(
                   radius: 26,
-                  backgroundImage: AssetImage('assets/images/avatar.jpg'),
+                  backgroundImage: AssetImage('assets/images/kovuIcon.jpeg'), // Imagen local del personaje
                 ),
               ),
             ),
@@ -260,7 +260,7 @@ class HeroRocket extends StatelessWidget {
           width: 130,
           height: 130,
           decoration: const BoxDecoration(shape: BoxShape.circle),
-          child: ClipOval(child: Image.asset('assets/images/avatar.jpg', fit: BoxFit.cover)),
+          child: ClipOval(child: Image.asset('assets/images/kovuIcon.jpeg', fit: BoxFit.cover)),
         ),
         const SizedBox(height: 10),
         const Text('El Robo De Molly', style: TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.w900, letterSpacing: 5)),
