@@ -30,7 +30,7 @@ class PlayerProfileScreen extends StatelessWidget {
           Container(
             decoration: const BoxDecoration(
               image: DecorationImage(
-                image: AssetImage('assets/images/perfilFondo.png'), // <-- CAMBIA ESTO
+                image: AssetImage('assets/images/fondoperroblanco.png'), // <-- CAMBIA ESTO
                 fit: BoxFit.cover, // Para que la imagen cubra toda la pantalla
                 alignment: Alignment.center,
               ),
