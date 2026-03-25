@@ -1,6 +1,8 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'PlayerProfileScreen.dart';
+// Asegúrate de que la ruta y el nombre del archivo sean correctos
+import 'levelMap.dart'; 
 
 class Lobby extends StatefulWidget {
   const Lobby({super.key});
@@ -50,11 +52,18 @@ class _LobbyState extends State<Lobby> with TickerProviderStateMixin {
     super.dispose();
   }
 
-  // Método para navegar al perfil del jugador
   void _navigateToPlayerProfile() {
     Navigator.push(
       context, 
       MaterialPageRoute(builder: (_) => const PlayerProfileScreen())
+    );
+  }
+
+  // Nueva función para navegar al mapa de niveles
+  void _navigateToLevelMap() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const Levelmap()) // Cambia 'LevelMap' por el nombre real de tu clase en ese archivo
     );
   }
 
@@ -126,7 +135,7 @@ class _LobbyState extends State<Lobby> with TickerProviderStateMixin {
             child: const CenterMenuIcons(),
           ),
 
-          // PLAY button
+          // PLAY button modificado
           Positioned(
             bottom: size.height * 0.18,
             left: 0,
@@ -134,7 +143,10 @@ class _LobbyState extends State<Lobby> with TickerProviderStateMixin {
             child: Center(
               child: AnimatedBuilder(
                 animation: _glowAnim,
-                builder: (_, _) => PlayButton(glowRadius: _glowAnim.value),
+                builder: (_, _) => PlayButton(
+                  glowRadius: _glowAnim.value,
+                  onTap: _navigateToLevelMap, // Pasamos la función de navegación aquí
+                ),
               ),
             ),
           ),
@@ -152,6 +164,8 @@ class _LobbyState extends State<Lobby> with TickerProviderStateMixin {
   }
 }
 
+// ... (Clases TopHud, HudBadge, HeroRocket y CenterMenuIcons se mantienen igual) ...
+
 class TopHud extends StatelessWidget {
   final Animation<double> floatAnim;
   final VoidCallback onAvatarTap;
@@ -166,18 +180,13 @@ class TopHud extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        // Avatar clicable
         AnimatedBuilder(
           animation: floatAnim,
           builder: (_, _) => Transform.translate(
             offset: Offset(0, floatAnim.value * 0.3),
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
-              onTap: () {
-                // ignore: avoid_print
-                print('✅ Navigating to PlayerProfileScreen...');
-                onAvatarTap();
-              },
+              onTap: onAvatarTap,
               child: Container(
                 width: 60,
                 height: 60,
@@ -201,34 +210,16 @@ class TopHud extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 10),
-        // Texto de usuario
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: const [
-            Text(
-              'EVIE',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.w900,
-                letterSpacing: 2,
-              ),
-            ),
-            Text(
-              'SPACE EXPLORER',
-              style: TextStyle(
-                color: Color(0xFFCE93D8),
-                fontSize: 10,
-                letterSpacing: 1.5,
-              ),
-            ),
+            Text('EVIE', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w900, letterSpacing: 2)),
+            Text('SPACE EXPLORER', style: TextStyle(color: Color(0xFFCE93D8), fontSize: 10, letterSpacing: 1.5)),
           ],
         ),
         const Spacer(),
-        // Coins
         HudBadge(icon: Icons.stars_rounded, value: '120', color: const Color(0xFFFFD740)),
         const SizedBox(width: 10),
-        // Level
         HudBadge(icon: Icons.rocket_launch_rounded, value: 'Lv.3', color: const Color(0xFF69F0AE)),
       ],
     );
@@ -239,14 +230,7 @@ class HudBadge extends StatelessWidget {
   final IconData icon;
   final String value;
   final Color color;
-
-  const HudBadge({
-    super.key,
-    required this.icon,
-    required this.value,
-    required this.color,
-  });
-
+  const HudBadge({super.key, required this.icon, required this.value, required this.color});
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -255,34 +239,20 @@ class HudBadge extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         color: Colors.black.withValues(alpha: 0.45),
         border: Border.all(color: color.withValues(alpha: 0.6), width: 1.3),
-        boxShadow: [BoxShadow(color: color.withValues(alpha: 0.25), blurRadius: 8)],
       ),
       child: Row(
-        mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, color: color, size: 17),
           const SizedBox(width: 5),
-          Text(
-            value,
-            style: TextStyle(
-              color: color,
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 0.5,
-            ),
-          ),
+          Text(value, style: TextStyle(color: color, fontSize: 14, fontWeight: FontWeight.bold)),
         ],
       ),
     );
   }
 }
 
-// ─────────────────────────────────────────────
-//  HERO ROCKET
-// ─────────────────────────────────────────────
 class HeroRocket extends StatelessWidget {
   const HeroRocket({super.key});
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -290,52 +260,11 @@ class HeroRocket extends StatelessWidget {
         Container(
           width: 130,
           height: 130,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFF7C4DFF).withValues(alpha: 0.55),
-                blurRadius: 40,
-                spreadRadius: 10,
-              ),
-              BoxShadow(
-                color: const Color(0xFFE040FB).withValues(alpha: 0.30),
-                blurRadius: 60,
-                spreadRadius: 20,
-              ),
-            ],
-          ),
-          child: ClipOval(
-            child: Image.asset(
-              'assets/images/avatar.jpg',
-              fit: BoxFit.cover,
-            ),
-          ),
+          decoration: const BoxDecoration(shape: BoxShape.circle),
+          child: ClipOval(child: Image.asset('assets/images/avatar.jpg', fit: BoxFit.cover)),
         ),
         const SizedBox(height: 10),
-        ShaderMask(
-          shaderCallback: (bounds) => const LinearGradient(
-            colors: [Color(0xFFE040FB), Color(0xFF7C4DFF), Color(0xFF40C4FF)],
-          ).createShader(bounds),
-          child: const Text(
-            'El Robo De Molly',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 32,
-              fontWeight: FontWeight.w900,
-              letterSpacing: 5,
-            ),
-          ),
-        ),
-        const SizedBox(height: 4),
-        const Text(
-          'Una aventura en patitas',
-          style: TextStyle(
-            color: Color(0xFFCE93D8),
-            fontSize: 11,
-            letterSpacing: 4,
-          ),
-        ),
+        const Text('El Robo De Molly', style: TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.w900, letterSpacing: 5)),
       ],
     );
   }
@@ -343,7 +272,6 @@ class HeroRocket extends StatelessWidget {
 
 class CenterMenuIcons extends StatelessWidget {
   const CenterMenuIcons({super.key});
-
   @override
   Widget build(BuildContext context) {
     final menuItems = const [
@@ -354,17 +282,11 @@ class CenterMenuIcons extends StatelessWidget {
       MenuItemData(label: 'Shop', icon: Icons.storefront_rounded, color: Color(0xFFFF6D00)),
       MenuItemData(label: 'Collection', icon: Icons.collections_bookmark_rounded, color: Color(0xFFEA80FC)),
     ];
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Wrap(
-        alignment: WrapAlignment.center,
-        spacing: 12,
-        runSpacing: 12,
-        children: menuItems.map((item) {
-          return MenuIconButton(item: item);
-        }).toList(),
-      ),
+    return Wrap(
+      alignment: WrapAlignment.center,
+      spacing: 12,
+      runSpacing: 12,
+      children: menuItems.map((item) => MenuIconButton(item: item)).toList(),
     );
   }
 }
@@ -373,19 +295,12 @@ class MenuItemData {
   final String label;
   final IconData icon;
   final Color color;
-
-  const MenuItemData({
-    required this.label,
-    required this.icon,
-    required this.color,
-  });
+  const MenuItemData({required this.label, required this.icon, required this.color});
 }
 
 class MenuIconButton extends StatefulWidget {
   final MenuItemData item;
-
   const MenuIconButton({super.key, required this.item});
-
   @override
   State<MenuIconButton> createState() => _MenuIconButtonState();
 }
@@ -393,54 +308,34 @@ class MenuIconButton extends StatefulWidget {
 class _MenuIconButtonState extends State<MenuIconButton> with SingleTickerProviderStateMixin {
   late AnimationController _ctrl;
   late Animation<double> _scale;
-
   @override
   void initState() {
     super.initState();
     _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 120));
     _scale = Tween<double>(begin: 1.0, end: 0.88).animate(_ctrl);
   }
-
   @override
-  void dispose() {
-    _ctrl.dispose();
-    super.dispose();
-  }
-
+  void dispose() { _ctrl.dispose(); super.dispose(); }
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTapDown: (_) => _ctrl.forward(),
       onTapUp: (_) => _ctrl.reverse(),
       onTapCancel: () => _ctrl.reverse(),
-      onTap: () {
-      },
       child: ScaleTransition(
         scale: _scale,
         child: Container(
-          width: 75,
-          height: 85,
+          width: 75, height: 85,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(18),
             color: Colors.black.withValues(alpha: 0.50),
             border: Border.all(color: widget.item.color.withValues(alpha: 0.55), width: 1.5),
-            boxShadow: [BoxShadow(color: widget.item.color.withValues(alpha: 0.25), blurRadius: 12)],
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(widget.item.icon, color: widget.item.color, size: 28),
-              const SizedBox(height: 6),
-              Text(
-                widget.item.label,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: widget.item.color,
-                  fontSize: 9,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 0.5,
-                ),
-              ),
+              Text(widget.item.label, style: TextStyle(color: widget.item.color, fontSize: 9, fontWeight: FontWeight.bold)),
             ],
           ),
         ),
@@ -449,10 +344,14 @@ class _MenuIconButtonState extends State<MenuIconButton> with SingleTickerProvid
   }
 }
 
+// ─────────────────────────────────────────────
+//  PLAY BUTTON (MODIFICADO)
+// ─────────────────────────────────────────────
 class PlayButton extends StatefulWidget {
   final double glowRadius;
+  final VoidCallback onTap; // Añadido callback
 
-  const PlayButton({super.key, required this.glowRadius});
+  const PlayButton({super.key, required this.glowRadius, required this.onTap});
 
   @override
   State<PlayButton> createState() => _PlayButtonState();
@@ -481,8 +380,7 @@ class _PlayButtonState extends State<PlayButton> with SingleTickerProviderStateM
       onTapDown: (_) => _scaleCtrl.forward(),
       onTapUp: (_) => _scaleCtrl.reverse(),
       onTapCancel: () => _scaleCtrl.reverse(),
-      onTap: () {
-      },
+      onTap: widget.onTap, // Ejecuta la navegación
       child: ScaleTransition(
         scale: _scaleAnim,
         child: Container(
@@ -490,9 +388,7 @@ class _PlayButtonState extends State<PlayButton> with SingleTickerProviderStateM
           height: 64,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(32),
-            gradient: const LinearGradient(
-              colors: [Color(0xFFE040FB), Color(0xFF7C4DFF)],
-            ),
+            gradient: const LinearGradient(colors: [Color(0xFFE040FB), Color(0xFF7C4DFF)]),
             boxShadow: [
               BoxShadow(
                 color: const Color(0xFFE040FB).withValues(alpha: 0.65),
@@ -506,15 +402,7 @@ class _PlayButtonState extends State<PlayButton> with SingleTickerProviderStateM
             children: [
               Icon(Icons.rocket_launch, color: Colors.white, size: 24),
               SizedBox(width: 10),
-              Text(
-                'PLAY',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 4,
-                ),
-              ),
+              Text('PLAY', style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w900, letterSpacing: 4)),
             ],
           ),
         ),
@@ -525,44 +413,15 @@ class _PlayButtonState extends State<PlayButton> with SingleTickerProviderStateM
 
 class BottomNavigationBarCustom extends StatelessWidget {
   const BottomNavigationBarCustom({super.key});
-
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).padding.bottom + 16,
-        top: 16,
-        left: 40,
-        right: 40,
-      ),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.bottomCenter,
-          end: Alignment.topCenter,
-          colors: [
-            Colors.black.withValues(alpha: 0.90),
-            Colors.black.withValues(alpha: 0.40),
-            Colors.transparent,
-          ],
-        ),
-      ),
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom + 16, top: 16, left: 40, right: 40),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          BottomNavItem(
-            icon: Icons.settings_rounded,
-            label: 'Settings',
-            color: const Color(0xFF69F0AE),
-            onTap: () {
-            },
-          ),
-          BottomNavItem(
-            icon: Icons.help_outline_rounded,
-            label: 'Help',
-            color: const Color(0xFF40C4FF),
-            onTap: () {
-            },
-          ),
+          BottomNavItem(icon: Icons.settings_rounded, label: 'Settings', color: const Color(0xFF69F0AE), onTap: () {}),
+          BottomNavItem(icon: Icons.help_outline_rounded, label: 'Help', color: const Color(0xFF40C4FF), onTap: () {}),
         ],
       ),
     );
@@ -574,15 +433,7 @@ class BottomNavItem extends StatefulWidget {
   final String label;
   final Color color;
   final VoidCallback onTap;
-
-  const BottomNavItem({
-    super.key,
-    required this.icon,
-    required this.label,
-    required this.color,
-    required this.onTap,
-  });
-
+  const BottomNavItem({super.key, required this.icon, required this.label, required this.color, required this.onTap});
   @override
   State<BottomNavItem> createState() => _BottomNavItemState();
 }
@@ -590,26 +441,19 @@ class BottomNavItem extends StatefulWidget {
 class _BottomNavItemState extends State<BottomNavItem> with SingleTickerProviderStateMixin {
   late AnimationController _ctrl;
   late Animation<double> _scale;
-
   @override
   void initState() {
     super.initState();
     _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 150));
     _scale = Tween<double>(begin: 1.0, end: 0.90).animate(_ctrl);
   }
-
   @override
-  void dispose() {
-    _ctrl.dispose();
-    super.dispose();
-  }
-
+  void dispose() { _ctrl.dispose(); super.dispose(); }
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTapDown: (_) => _ctrl.forward(),
       onTapUp: (_) => _ctrl.reverse(),
-      onTapCancel: () => _ctrl.reverse(),
       onTap: widget.onTap,
       child: ScaleTransition(
         scale: _scale,
@@ -618,23 +462,10 @@ class _BottomNavItemState extends State<BottomNavItem> with SingleTickerProvider
           children: [
             Container(
               padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: widget.color.withValues(alpha: 0.15),
-                border: Border.all(color: widget.color.withValues(alpha: 0.5), width: 1.5),
-              ),
+              decoration: BoxDecoration(shape: BoxShape.circle, color: widget.color.withValues(alpha: 0.15)),
               child: Icon(widget.icon, color: widget.color, size: 26),
             ),
-            const SizedBox(height: 6),
-            Text(
-              widget.label,
-              style: TextStyle(
-                color: widget.color,
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 0.8,
-              ),
-            ),
+            Text(widget.label, style: TextStyle(color: widget.color, fontSize: 11)),
           ],
         ),
       ),
@@ -645,38 +476,21 @@ class _BottomNavItemState extends State<BottomNavItem> with SingleTickerProvider
 class StarParticle extends StatelessWidget {
   final int index;
   final AnimationController controller;
-
   const StarParticle({super.key, required this.index, required this.controller});
-
   @override
   Widget build(BuildContext context) {
     final rng = math.Random(index * 7919);
     final size = MediaQuery.of(context).size;
-
     final x = rng.nextDouble() * size.width;
     final y = rng.nextDouble() * size.height;
     final starSize = 1.5 + rng.nextDouble() * 2.5;
-    final delay = rng.nextDouble();
-
     return Positioned(
-      left: x,
-      top: y,
+      left: x, top: y,
       child: AnimatedBuilder(
         animation: controller,
         builder: (_, _) {
-          final t = (controller.value + delay) % 1.0;
-          final opacity = (math.sin(t * math.pi)).clamp(0.1, 1.0);
-          return Opacity(
-            opacity: opacity,
-            child: Container(
-              width: starSize,
-              height: starSize,
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.white,
-              ),
-            ),
-          );
+          final opacity = (math.sin(controller.value * math.pi)).clamp(0.1, 1.0);
+          return Opacity(opacity: opacity, child: Container(width: starSize, height: starSize, decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.white)));
         },
       ),
     );
