@@ -22,11 +22,6 @@ class PlayerProfileScreen extends StatelessWidget {
       backgroundColor: AppColors.background,
       body: Stack(
         children: [
-          // ===================================================================
-          // 🛑 1. IMAGEN DE FONDO GALÁCTICA
-          // Esta es la imagen del perro en el espacio que me mostraste.
-          // Reemplaza 'fondo_espacial.png' por el nombre real de tu archivo.
-          // ===================================================================
           Container(
             decoration: const BoxDecoration(
               image: DecorationImage(
@@ -59,7 +54,6 @@ class PlayerProfileScreen extends StatelessWidget {
                 child: Column(
                   children: [
                     const SizedBox(height: 20),
-                    // Barra superior con monedas y botones
                     _TopBar(coins: p.coins),
                     
                     const SizedBox(height: 40),
@@ -279,7 +273,7 @@ class _StatsGrid extends StatelessWidget {
         const SizedBox(width: 12),
         Expanded(
           child: _StatItem(
-            label: 'DOGS',
+            label: 'LEVELS',
             value: '$dogs',
             color: AppColors.gold,
           ),
