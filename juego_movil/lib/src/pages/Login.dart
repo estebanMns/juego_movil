@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart'; 
+import 'package:juego_movil/components/PlayerProfileController.dart'; 
 import 'register.dart';
 import 'lobby.dart';
 
@@ -236,47 +238,27 @@ class Login extends StatelessWidget {
     );
   }
 
-  void _handleLogin(BuildContext context, String email, String password) {
-    // ==========================================
-    // TODO: REEMPLAZAR CON TU BACKEND
-    // ==========================================
-    // Aquí iría la llamada a tu API de autenticación
-    // Ejemplo con Firebase Auth, Supabase, o tu propio backend
-    
-    // Credenciales de prueba para desarrollo (ELIMINAR EN PRODUCCIÓN)
-    const String testEmail = 'test@test.com';
-    const String testPassword = '123456';
+  void _handleLogin(BuildContext context, String userInput, String password) async {
+  String nombreLimpio = userInput.trim();
 
-    // Validación de campos vacíos
-    if (email.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Por favor completa todos los campos'),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
-    }
-
-    // Verificación de credenciales (SOLO PARA PRUEBAS)
-    if (email == testEmail && password == testPassword) {
-      // Login exitoso - Navegar al lobby
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const Lobby()),
-      );
-    } else {
-      // Credenciales incorrectas
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Email o contraseña incorrectos'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
-    
-    // ==========================================
-    // FIN DEL CÓDIGO DE PRUEBA
-    // ==========================================
+  if (nombreLimpio.isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Escribe tu usuario'), backgroundColor: Colors.red),
+    );
+    return;
   }
+
+  final playerController = Get.find<PlayerProfileController>();
+  
+  // Intenta buscar el nombre que escribiste en la DB
+  bool exito = await playerController.loginLocal(nombreLimpio);
+
+  if (exito) {
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const Lobby()));
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('El usuario "$nombreLimpio" no existe.'), backgroundColor: Colors.orange),
+    );
+  }
+}
 }
