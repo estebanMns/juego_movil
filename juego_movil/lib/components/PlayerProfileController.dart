@@ -44,16 +44,16 @@ class PlayerProfileController extends GetxController with GetSingleTickerProvide
     // Datos de prueba (Hardcoded por ahora)
     player.value = const PlayerModel(
       uid: 'u001',
-      username: 'ASTRO_DEV',
-      avatarUrl: 'https://i.pravatar.cc/150?u=astro', // Imagen aleatoria
-      coins: 12450,
-      level: 24,
-      xp: 750,
+      username: 'EL_PERRO_BLANCO',
+      avatarUrl: 'https://www.google.com/url?sa=t&source=web&rct=j&url=https%3A%2F%2Fwww.freepik.es%2Ffotos-vectores-gratis%2Favatar-perro&ved=0CBYQjRxqFwoTCICpiZapupMDFQAAAAAdAAAAABA9&opi=89978449', // Imagen aleatoria
+      coins: 0,
+      level: 0,
+      xp: 0,
       xpToNextLevel: 1000,
       rank: 'COMANDANTE GALÁCTICO',
-      scanAccuracy: 94.5,
-      totalScans: 152,
-      dogsCollected: 48,
+      scanAccuracy: 0,
+      totalScans: 0,
+      dogsCollected: 0,
     );
 
     isLoading.value = false;
