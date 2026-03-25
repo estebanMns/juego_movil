@@ -1,26 +1,24 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
 
-// Modelo de datos para cada nivel
 class LevelData {
   final int id;
   final String name;
   final LevelStatus status;
-  final Offset position;
+  final double xFactor; // Posición horizontal (0.0 a 1.0)
   final bool isBossLevel;
 
   LevelData({
     required this.id,
     required this.name,
     required this.status,
-    required this.position,
+    required this.xFactor,
     this.isBossLevel = false,
   });
 }
 
 enum LevelStatus { locked, available, completed }
 
-// Widget principal del mapa de niveles
 class Levelmap extends StatefulWidget {
   const Levelmap({super.key});
 
@@ -30,50 +28,38 @@ class Levelmap extends StatefulWidget {
 
 class _LevelmapState extends State<Levelmap> with TickerProviderStateMixin {
   late List<LevelData> levels;
-  late AnimationController _animationController;
+  final ScrollController _scrollController = ScrollController();
+  double _scrollOffset = 0.0;
+  final double itemHeight = 120.0; // Espacio vertical entre niveles
 
   @override
   void initState() {
     super.initState();
-    _animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 2),
-    )..repeat();
-    
     _initializeLevels();
+    _scrollController.addListener(() {
+      setState(() {
+        _scrollOffset = _scrollController.offset;
+      });
+    });
   }
 
   @override
   void dispose() {
-    _animationController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
   void _initializeLevels() {
     levels = List.generate(20, (index) {
       final levelNumber = index + 1;
-      // Crear patrón serpenteante (zig-zag)
-      final row = (index / 5).floor();
-      final col = index % 5;
+      // Lógica de zig-zag simplificada
+      double xPos = 0.5 + (0.3 * sin(index * 0.8)); 
       
-      // Calcular posición en patrón serpenteante
-      double xPos;
-      if (row.isEven) {
-        xPos = 0.15 + (col * 0.17); // Izquierda a derecha
-      } else {
-        xPos = 0.85 - (col * 0.17); // Derecha a izquierda
-      }
-      
-      final yPos = 0.08 + (index * 0.048);
-      
-      // Determinar estado del nivel
       LevelStatus status;
-      if (levelNumber == 1) {
+      if (levelNumber < 2) {
         status = LevelStatus.completed;
       } else if (levelNumber == 2) {
         status = LevelStatus.available;
-      } else if (levelNumber <= 5) {
-        status = LevelStatus.locked;
       } else {
         status = LevelStatus.locked;
       }
@@ -82,125 +68,73 @@ class _LevelmapState extends State<Levelmap> with TickerProviderStateMixin {
         id: levelNumber,
         name: 'Nivel $levelNumber',
         status: status,
-        position: Offset(xPos, yPos),
+        xFactor: xPos,
         isBossLevel: levelNumber % 5 == 0,
       );
     });
   }
 
-  void _onLevelTap(LevelData level) {
-    if (level.status != LevelStatus.locked) {
-      Navigator.pushNamed(
-        context,
-        '/level-detail',
-        arguments: {'levelId': level.id, 'levelName': level.name},
-      );
-    } else {
-      // Feedback visual para nivel bloqueado
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Completa el nivel anterior para desbloquear'),
-          backgroundColor: Colors.grey[800],
-          duration: const Duration(seconds: 2),
-        ),
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final totalHeight = levels.length * itemHeight + 200;
+
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFF1a0b2e),
-              Color(0xFF2d1b4e),
-              Color(0xFF0f0c29),
-            ],
+            colors: [Color(0xFF1a0b2e), Color(0xFF0f0c29)],
           ),
         ),
         child: Stack(
           children: [
-            // Fondo de estrellas
-            _buildStarField(),
+            _buildStarField(size),
             
-            // Título
-            Positioned(
-              top: 60,
-              left: 0,
-              right: 0,
-              child: Center(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 12,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.3),
-                    borderRadius: BorderRadius.circular(30),
-                    border: Border.all(
-                      color: Colors.purple.withOpacity(0.5),
-                      width: 2,
+            // Título fijo
+            SafeArea(
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: _buildHeader(),
+              ),
+            ),
+
+            // Mapa con Scroll
+            SingleChildScrollView(
+              controller: _scrollController,
+              physics: const BouncingScrollPhysics(),
+              child: SizedBox(
+                width: size.width,
+                height: totalHeight,
+                child: Stack(
+                  children: [
+                    // Línea de conexión dinámica
+                    CustomPaint(
+                      size: Size(size.width, totalHeight),
+                      painter: PathPainter(levels: levels, itemHeight: itemHeight),
                     ),
-                  ),
-                  child: const Text(
-                    'Mapa de Niveles',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1.2,
-                    ),
-                  ),
+                    
+                    // Render de niveles
+                    ...levels.asMap().entries.map((entry) {
+                      return _buildAnimatedLevel(entry.value, entry.key, size);
+                    }),
+
+                    // Icono del personaje (Yoongi)
+                    _buildPlayerAvatar(size),
+                  ],
                 ),
               ),
             ),
-            
-            // Scroll de niveles
-            Positioned(
-              top: 130,
-              bottom: 40,
-              left: 0,
-              right: 0,
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                child: SizedBox(
-                  height: 1200, // Altura suficiente para 20 niveles
-                  child: Stack(
-                    children: [
-                      // Línea de conexión (camino de asteroides)
-                      _buildPathConnection(),
-                      
-                      // Niveles
-                      ...levels.map((level) => _buildLevelNode(level)),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            
-            // Botón de regreso
+
+            // Botón Regresar
             Positioned(
               top: 50,
               left: 20,
-              child: GestureDetector(
-                onTap: () => Navigator.pop(context),
-                child: Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.3),
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white.withOpacity(0.3)),
-                  ),
-                  child: const Icon(
-                    Icons.arrow_back_ios_new,
-                    color: Colors.white,
-                    size: 20,
-                  ),
-                ),
+              child: FloatingActionButton.small(
+                backgroundColor: Colors.white10,
+                onPressed: () => Navigator.pop(context),
+                child: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 18),
               ),
             ),
           ],
@@ -209,234 +143,164 @@ class _LevelmapState extends State<Levelmap> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildStarField() {
-    return Stack(
-      children: List.generate(50, (index) {
-        final random = Random(index);
-        return Positioned(
-          left: random.nextDouble() * MediaQuery.of(context).size.width,
-          top: random.nextDouble() * MediaQuery.of(context).size.height,
-          child: AnimatedOpacity(
-            opacity: random.nextDouble() * 0.8 + 0.2,
-            duration: Duration(
-              milliseconds: random.nextInt(2000) + 1000,
+  Widget _buildHeader() {
+    return Container(
+      margin: const EdgeInsets.only(top: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.black38,
+        borderRadius: BorderRadius.circular(30),
+        border: Border.all(color: Colors.purpleAccent.withOpacity(0.5)),
+      ),
+      child: const Text(
+        'Mapa de Niveles',
+        style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
+      ),
+    );
+  }
+
+  Widget _buildPlayerAvatar(Size size) {
+    // Buscamos el nivel actual para poner el avatar encima
+    final currentLevelIndex = levels.indexWhere((l) => l.status == LevelStatus.available);
+    if (currentLevelIndex == -1) return const SizedBox();
+
+    final level = levels[currentLevelIndex];
+    final topPos = (currentLevelIndex * itemHeight) + 150;
+    final leftPos = level.xFactor * size.width - 25;
+
+    return AnimatedPositioned(
+      duration: const Duration(milliseconds: 500),
+      top: topPos - 45, // Un poco arriba del nivel
+      left: leftPos + 5,
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(3),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.cyanAccent, width: 2),
+              boxShadow: [BoxShadow(color: Colors.cyanAccent.withOpacity(0.5), blurRadius: 10)],
             ),
-            child: Container(
-              width: random.nextDouble() * 3 + 1,
-              height: random.nextDouble() * 3 + 1,
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-              ),
+            child: const CircleAvatar(
+              radius: 20,
+              // IMAGEN DE YOONGI AQUÍ
+              backgroundImage: AssetImage('assets/image/yoongi.jpg'),
             ),
           ),
-        );
-      }),
-    );
-  }
-
-  Widget _buildPathConnection() {
-    return CustomPaint(
-      size: Size.infinite,
-      painter: PathPainter(levels: levels),
-    );
-  }
-
-  Widget _buildLevelNode(LevelData level) {
-    return Positioned(
-      left: level.position.dx * MediaQuery.of(context).size.width,
-      top: level.position.dy * 1200,
-      child: GestureDetector(
-        onTap: () => _onLevelTap(level),
-        child: AnimatedScale(
-          scale: level.status == LevelStatus.available ? 1.1 : 1.0,
-          duration: const Duration(milliseconds: 200),
-          child: _buildLevelWidget(level),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLevelWidget(LevelData level) {
-    final size = level.isBossLevel ? 70.0 : 60.0;
-    
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: _getLevelGradient(level),
-        boxShadow: _getLevelShadow(level),
-        border: Border.all(
-          color: _getLevelBorderColor(level),
-          width: level.status == LevelStatus.available ? 3 : 2,
-        ),
-      ),
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          // Icono o número
-          if (level.status == LevelStatus.locked)
-            const Icon(Icons.lock, color: Colors.white70, size: 24)
-          else if (level.status == LevelStatus.completed)
-            const Icon(Icons.star, color: Colors.amber, size: 28)
-          else
-            Text(
-              '${level.id}',
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          
-          // Indicador de nivel jefe
-          if (level.isBossLevel)
-            Positioned(
-              top: -5,
-              right: -5,
-              child: Container(
-                padding: const EdgeInsets.all(4),
-                decoration: const BoxDecoration(
-                  color: Colors.red,
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.emoji_events,
-                  color: Colors.yellow,
-                  size: 16,
-                ),
-              ),
-            ),
+          const Icon(Icons.arrow_drop_down, color: Colors.cyanAccent),
         ],
       ),
     );
   }
 
-  Gradient _getLevelGradient(LevelData level) {
-    switch (level.status) {
-      case LevelStatus.locked:
-        return const LinearGradient(
-          colors: [Color(0xFF4a4a4a), Color(0xFF2a2a2a)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        );
-      case LevelStatus.available:
-        return const LinearGradient(
-          colors: [Color(0xFF00d2ff), Color(0xFF3a7bd5)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        );
-      case LevelStatus.completed:
-        return const LinearGradient(
-          colors: [Color(0xFFf093fb), Color(0xFFf5576c)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        );
-    }
+  Widget _buildAnimatedLevel(LevelData level, int index, Size size) {
+    final topPosition = (index * itemHeight) + 150;
+    
+    // Lógica de animación al hacer scroll
+    final distanceToCenter = (topPosition - _scrollOffset - size.height / 2).abs();
+    final scale = (1.2 - (distanceToCenter / size.height)).clamp(0.8, 1.2);
+    final opacity = (1.0 - (distanceToCenter / size.height)).clamp(0.4, 1.0);
+
+    return Positioned(
+      top: topPosition,
+      left: level.xFactor * size.width - 30,
+      child: Opacity(
+        opacity: opacity,
+        child: Transform.scale(
+          scale: scale,
+          child: _buildLevelNode(level),
+        ),
+      ),
+    );
   }
 
-  List<BoxShadow> _getLevelShadow(LevelData level) {
-    if (level.status == LevelStatus.locked) {
-      return [
-        BoxShadow(
-          color: Colors.black.withOpacity(0.3),
-          blurRadius: 10,
-          offset: const Offset(0, 5),
+  Widget _buildLevelNode(LevelData level) {
+    return GestureDetector(
+      onTap: () {
+        if (level.status != LevelStatus.locked) {
+          print("Nivel ${level.id} seleccionado");
+        }
+      },
+      child: Container(
+        width: 60,
+        height: 60,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: _getGradient(level.status),
+          boxShadow: [
+            if (level.status != LevelStatus.locked)
+              BoxShadow(
+                color: level.status == LevelStatus.available ? Colors.blue : Colors.pinkAccent,
+                blurRadius: 15,
+              )
+          ],
+          border: Border.all(color: Colors.white24, width: 2),
         ),
-      ];
-    } else if (level.status == LevelStatus.available) {
-      return [
-        BoxShadow(
-          color: Colors.blue.withOpacity(0.6),
-          blurRadius: 20,
-          spreadRadius: 2,
+        child: Center(
+          child: level.status == LevelStatus.locked
+              ? const Icon(Icons.lock, color: Colors.white30, size: 20)
+              : Text(
+                  '${level.id}',
+                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
+                ),
         ),
-      ];
-    } else {
-      return [
-        BoxShadow(
-          color: Colors.pink.withOpacity(0.6),
-          blurRadius: 20,
-          spreadRadius: 2,
-        ),
-      ];
-    }
+      ),
+    );
   }
 
-  Color _getLevelBorderColor(LevelData level) {
-    switch (level.status) {
-      case LevelStatus.locked:
-        return Colors.white30;
-      case LevelStatus.available:
-        return Colors.cyanAccent;
-      case LevelStatus.completed:
-        return Colors.amber;
+  Gradient _getGradient(LevelStatus status) {
+    if (status == LevelStatus.locked) {
+      return const LinearGradient(colors: [Colors.grey, Color(0xFF2A2A2A)]);
     }
+    if (status == LevelStatus.available) {
+      return const LinearGradient(colors: [Color(0xFF00D2FF), Color(0xFF3A7BD5)]);
+    }
+    return const LinearGradient(colors: [Color(0xFFF093FB), Color(0xFFF5576C)]);
+  }
+
+  Widget _buildStarField(Size size) {
+    return Stack(
+      children: List.generate(30, (i) => Positioned(
+        top: Random(i).nextDouble() * size.height,
+        left: Random(i).nextDouble() * size.width,
+        child: const Icon(Icons.star, size: 2, color: Colors.white24),
+      )),
+    );
   }
 }
 
-// Pintor personalizado para la línea de conexión entre niveles
 class PathPainter extends CustomPainter {
   final List<LevelData> levels;
-  
-  PathPainter({required this.levels});
+  final double itemHeight;
+
+  PathPainter({required this.levels, required this.itemHeight});
 
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.white.withOpacity(0.2)
-      ..strokeWidth = 3
+      ..color = Colors.white10
       ..style = PaintingStyle.stroke
+      ..strokeWidth = 4.0
       ..strokeCap = StrokeCap.round;
 
     final path = Path();
-    
-    if (levels.isNotEmpty) {
-      final firstLevel = levels.first;
-      path.moveTo(
-        firstLevel.position.dx * size.width + 30,
-        firstLevel.position.dy * 1200 + 30,
-      );
+    if (levels.isEmpty) return;
 
-      for (int i = 1; i < levels.length; i++) {
-        final level = levels[i];
-        final prevLevel = levels[i - 1];
-        
-        // Crear curva suave entre niveles
-        final midX = (prevLevel.position.dx + level.position.dx) * size.width / 2;
-        final midY = (prevLevel.position.dy + level.position.dy) * 1200 / 2;
-        
-        path.quadraticBezierTo(
-          midX,
-          prevLevel.position.dy * 1200 + 30,
-          level.position.dx * size.width + 30,
-          level.position.dy * 1200 + 30,
-        );
-      }
-    }
-
-    canvas.drawPath(path, paint);
-
-    // Dibujar asteroides pequeños en el camino
-    _drawAsteroids(canvas, size);
-  }
-
-  void _drawAsteroids(Canvas canvas, Size size) {
-    final random = Random(42);
-    final asteroidPaint = Paint()
-      ..color = Colors.grey.withOpacity(0.4)
-      ..style = PaintingStyle.fill;
-
-    for (int i = 0; i < 30; i++) {
-      final x = random.nextDouble() * size.width;
-      final y = random.nextDouble() * size.height;
-      final radius = random.nextDouble() * 4 + 2;
+    for (int i = 0; i < levels.length - 1; i++) {
+      final p1 = Offset(levels[i].xFactor * size.width, (i * itemHeight) + 180);
+      final p2 = Offset(levels[i+1].xFactor * size.width, ((i + 1) * itemHeight) + 180);
       
-      canvas.drawCircle(Offset(x, y), radius, asteroidPaint);
+      path.moveTo(p1.dx, p1.dy);
+      // Curva suave entre niveles
+      path.cubicTo(
+        p1.dx, p1.dy + itemHeight / 2,
+        p2.dx, p2.dy - itemHeight / 2,
+        p2.dx, p2.dy,
+      );
     }
+    canvas.drawPath(path, paint);
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(PathPainter oldDelegate) => false;
 }
