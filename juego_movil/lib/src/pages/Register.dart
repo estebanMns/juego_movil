@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'login.dart';
 
 class Register extends StatelessWidget {
   const Register({super.key});
@@ -54,7 +55,7 @@ class Register extends StatelessWidget {
                         ),
                         SizedBox(height: 16),
                         Text(
-                          'Space App',
+                          'El robo de Molly',
                           style: TextStyle(
                             fontSize: 32,
                             fontWeight: FontWeight.bold,
@@ -245,8 +246,11 @@ class Register extends StatelessWidget {
                         ),
                         TextButton(
                           onPressed: () {
-                            Navigator.pushNamed(context, '/login');
-                            // O: Navigator.pop(context);
+                            // Navegación directa a Login
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (_) => const Login()),
+                            );
                           },
                           child: const Text(
                             'Inicia sesión',
@@ -277,7 +281,13 @@ class Register extends StatelessWidget {
     String password,
     String confirmPassword,
   ) {
-    // Validaciones
+    // ==========================================
+    // TODO: REEMPLAZAR CON TU BACKEND
+    // ==========================================
+    // Aquí iría la llamada a tu API de registro
+    // Ejemplo con Firebase Auth, Supabase, o tu propio backend
+    
+    // Validaciones básicas
     if (name.isEmpty || email.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -308,15 +318,25 @@ class Register extends StatelessWidget {
       return;
     }
 
-    // Ejemplo de registro exitoso
+    // Simulación de registro exitoso (SOLO PARA PRUEBAS)
+    // En producción, esto se reemplaza con la llamada al backend
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('¡Registro exitoso!'),
+        content: Text('¡Registro exitoso! Por favor inicia sesión'),
         backgroundColor: Colors.green,
       ),
     );
+
+    // Regresar al login después de 2 segundos
+    Future.delayed(const Duration(seconds: 2), () {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const Login()),
+      );
+    });
     
-    // Navegar al login o home
-    // Navigator.pushReplacementNamed(context, '/login');
+    // ==========================================
+    // FIN DEL CÓDIGO DE PRUEBA
+    // ==========================================
   }
 }

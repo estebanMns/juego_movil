@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'register.dart';
+import 'lobby.dart';
 
 class Login extends StatelessWidget {
   const Login({super.key});
@@ -52,7 +54,7 @@ class Login extends StatelessWidget {
                         ),
                         SizedBox(height: 16),
                         Text(
-                          'Space App',
+                          'El robo de Molly',
                           style: TextStyle(
                             fontSize: 32,
                             fontWeight: FontWeight.bold,
@@ -146,7 +148,7 @@ class Login extends StatelessWidget {
                             alignment: Alignment.centerRight,
                             child: TextButton(
                               onPressed: () {
-                                // Navegar a recuperar contraseña
+                                // TODO: Implementar recuperación de contraseña
                               },
                               child: const Text(
                                 '¿Olvidaste tu contraseña?',
@@ -164,7 +166,11 @@ class Login extends StatelessWidget {
                             height: 50,
                             child: ElevatedButton(
                               onPressed: () {
-                                _handleLogin(context, emailController.text, passwordController.text);
+                                _handleLogin(
+                                  context,
+                                  emailController.text,
+                                  passwordController.text,
+                                );
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFF9C27B0),
@@ -202,7 +208,11 @@ class Login extends StatelessWidget {
                         ),
                         TextButton(
                           onPressed: () {
-                            Navigator.pushNamed(context, '/register');
+                            // Navegación directa a Register
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (_) => const Register()),
+                            );
                           },
                           child: const Text(
                             'Regístrate',
@@ -227,6 +237,17 @@ class Login extends StatelessWidget {
   }
 
   void _handleLogin(BuildContext context, String email, String password) {
+    // ==========================================
+    // TODO: REEMPLAZAR CON TU BACKEND
+    // ==========================================
+    // Aquí iría la llamada a tu API de autenticación
+    // Ejemplo con Firebase Auth, Supabase, o tu propio backend
+    
+    // Credenciales de prueba para desarrollo (ELIMINAR EN PRODUCCIÓN)
+    const String testEmail = 'test@test.com';
+    const String testPassword = '123456';
+
+    // Validación de campos vacíos
     if (email.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -236,8 +257,26 @@ class Login extends StatelessWidget {
       );
       return;
     }
+
+    // Verificación de credenciales (SOLO PARA PRUEBAS)
+    if (email == testEmail && password == testPassword) {
+      // Login exitoso - Navegar al lobby
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const Lobby()),
+      );
+    } else {
+      // Credenciales incorrectas
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Email o contraseña incorrectos'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
     
-    // Ejemplo de navegación después del login exitoso
-    // Navigator.pushReplacementNamed(context, '/home');
+    // ==========================================
+    // FIN DEL CÓDIGO DE PRUEBA
+    // ==========================================
   }
 }
