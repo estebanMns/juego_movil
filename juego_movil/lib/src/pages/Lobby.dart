@@ -1,11 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
-// TODO: Descomenta esta línea cuando tengas el archivo PlayerProfileScreen
-// import 'player_profile_screen.dart';
-
-// ─────────────────────────────────────────────
-//  LOBBY  –  Space Adventure Game Screen
-// ─────────────────────────────────────────────
+import 'PlayerProfileScreen.dart';
 
 class Lobby extends StatefulWidget {
   const Lobby({super.key});
@@ -57,15 +52,9 @@ class _LobbyState extends State<Lobby> with TickerProviderStateMixin {
 
   // Método para navegar al perfil del jugador
   void _navigateToPlayerProfile() {
-    // TODO: Descomenta la siguiente línea cuando tengas PlayerProfileScreen.dart
-    // Navigator.push(context, MaterialPageRoute(builder: (_) => const PlayerProfileScreen()));
-    
-    // Línea temporal para pruebas (ELIMINAR cuando integres el backend)
     Navigator.push(
       context, 
-      MaterialPageRoute(builder: (_) => const Scaffold(
-        body: Center(child: Text('Player Profile Screen', style: TextStyle(fontSize: 24))),
-      ))
+      MaterialPageRoute(builder: (_) => const PlayerProfileScreen())
     );
   }
 
@@ -122,7 +111,7 @@ class _LobbyState extends State<Lobby> with TickerProviderStateMixin {
             right: 0,
             child: AnimatedBuilder(
               animation: _floatAnim,
-              builder: (_, __) => Transform.translate(
+              builder: (_, _) => Transform.translate(
                 offset: Offset(0, _floatAnim.value),
                 child: const HeroRocket(),
               ),
@@ -145,7 +134,7 @@ class _LobbyState extends State<Lobby> with TickerProviderStateMixin {
             child: Center(
               child: AnimatedBuilder(
                 animation: _glowAnim,
-                builder: (_, __) => PlayButton(glowRadius: _glowAnim.value),
+                builder: (_, _) => PlayButton(glowRadius: _glowAnim.value),
               ),
             ),
           ),
@@ -163,9 +152,6 @@ class _LobbyState extends State<Lobby> with TickerProviderStateMixin {
   }
 }
 
-// ─────────────────────────────────────────────
-//  TOP HUD - CORREGIDO
-// ─────────────────────────────────────────────
 class TopHud extends StatelessWidget {
   final Animation<double> floatAnim;
   final VoidCallback onAvatarTap;
@@ -180,22 +166,21 @@ class TopHud extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        // Avatar clicable - CORREGIDO CON HitTestBehavior
+        // Avatar clicable
         AnimatedBuilder(
           animation: floatAnim,
-          builder: (_, __) => Transform.translate(
+          builder: (_, _) => Transform.translate(
             offset: Offset(0, floatAnim.value * 0.3),
             child: GestureDetector(
-              behavior: HitTestBehavior.opaque, // ESTO PERMITE DETECTAR TOQUES
+              behavior: HitTestBehavior.opaque,
               onTap: () {
-                // Debug para verificar que funciona
                 // ignore: avoid_print
-                print('✅ Avatar touched! Navigating to profile...');
+                print('✅ Navigating to PlayerProfileScreen...');
                 onAvatarTap();
               },
               child: Container(
-                width: 60, // Tamaño explícito
-                height: 60, // Tamaño explícito
+                width: 60,
+                height: 60,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(color: const Color(0xFFE040FB), width: 2.5),
@@ -216,7 +201,7 @@ class TopHud extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 10),
-        // Texto de usuario (NO clicable)
+        // Texto de usuario
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: const [
@@ -322,7 +307,7 @@ class HeroRocket extends StatelessWidget {
           ),
           child: ClipOval(
             child: Image.asset(
-              'assets/images/yoongi.jpg',
+              'assets/images/avatar.jpg',
               fit: BoxFit.cover,
             ),
           ),
@@ -333,7 +318,7 @@ class HeroRocket extends StatelessWidget {
             colors: [Color(0xFFE040FB), Color(0xFF7C4DFF), Color(0xFF40C4FF)],
           ).createShader(bounds),
           child: const Text(
-            'STAR QUEST',
+            'El Robo De Molly',
             style: TextStyle(
               color: Colors.white,
               fontSize: 32,
@@ -344,7 +329,7 @@ class HeroRocket extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         const Text(
-          'GALAXY ADVENTURE',
+          'Una aventura en patitas',
           style: TextStyle(
             color: Color(0xFFCE93D8),
             fontSize: 11,
@@ -356,9 +341,6 @@ class HeroRocket extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────
-//  CENTER MENU ICONS
-// ─────────────────────────────────────────────
 class CenterMenuIcons extends StatelessWidget {
   const CenterMenuIcons({super.key});
 
@@ -432,7 +414,6 @@ class _MenuIconButtonState extends State<MenuIconButton> with SingleTickerProvid
       onTapUp: (_) => _ctrl.reverse(),
       onTapCancel: () => _ctrl.reverse(),
       onTap: () {
-        // TODO: Implementar navegación real para cada ítem del menú
       },
       child: ScaleTransition(
         scale: _scale,
@@ -468,9 +449,6 @@ class _MenuIconButtonState extends State<MenuIconButton> with SingleTickerProvid
   }
 }
 
-// ─────────────────────────────────────────────
-//  PLAY BUTTON
-// ─────────────────────────────────────────────
 class PlayButton extends StatefulWidget {
   final double glowRadius;
 
@@ -504,7 +482,6 @@ class _PlayButtonState extends State<PlayButton> with SingleTickerProviderStateM
       onTapUp: (_) => _scaleCtrl.reverse(),
       onTapCancel: () => _scaleCtrl.reverse(),
       onTap: () {
-        // TODO: Navegar a la pantalla del juego
       },
       child: ScaleTransition(
         scale: _scaleAnim,
@@ -546,9 +523,6 @@ class _PlayButtonState extends State<PlayButton> with SingleTickerProviderStateM
   }
 }
 
-// ─────────────────────────────────────────────
-//  BOTTOM NAVIGATION BAR
-// ─────────────────────────────────────────────
 class BottomNavigationBarCustom extends StatelessWidget {
   const BottomNavigationBarCustom({super.key});
 
@@ -580,7 +554,6 @@ class BottomNavigationBarCustom extends StatelessWidget {
             label: 'Settings',
             color: const Color(0xFF69F0AE),
             onTap: () {
-              // TODO: Implementar navegación a Settings
             },
           ),
           BottomNavItem(
@@ -588,7 +561,6 @@ class BottomNavigationBarCustom extends StatelessWidget {
             label: 'Help',
             color: const Color(0xFF40C4FF),
             onTap: () {
-              // TODO: Implementar navegación a Help
             },
           ),
         ],
@@ -670,9 +642,6 @@ class _BottomNavItemState extends State<BottomNavItem> with SingleTickerProvider
   }
 }
 
-// ─────────────────────────────────────────────
-//  STAR PARTICLES
-// ─────────────────────────────────────────────
 class StarParticle extends StatelessWidget {
   final int index;
   final AnimationController controller;
@@ -694,7 +663,7 @@ class StarParticle extends StatelessWidget {
       top: y,
       child: AnimatedBuilder(
         animation: controller,
-        builder: (_, __) {
+        builder: (_, _) {
           final t = (controller.value + delay) % 1.0;
           final opacity = (math.sin(t * math.pi)).clamp(0.1, 1.0);
           return Opacity(

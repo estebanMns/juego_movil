@@ -44,8 +44,8 @@ class PlayerProfileController extends GetxController with GetSingleTickerProvide
     // Datos de prueba (Hardcoded por ahora)
     player.value = const PlayerModel(
       uid: 'u001',
-      username: 'EL_PERRO_BLANCO',
-      avatarUrl: 'https://www.google.com/url?sa=t&source=web&rct=j&url=https%3A%2F%2Fwww.freepik.es%2Ffotos-vectores-gratis%2Favatar-perro&ved=0CBYQjRxqFwoTCICpiZapupMDFQAAAAAdAAAAABA9&opi=89978449', // Imagen aleatoria
+      username: 'Perro Blanco',
+      avatarUrl: 'assets/images/avatar.jpg',
       coins: 0,
       level: 0,
       xp: 0,
