@@ -1,5 +1,7 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+// TODO: Descomenta esta línea cuando tengas el archivo PlayerProfileScreen
+// import 'player_profile_screen.dart';
 
 // ─────────────────────────────────────────────
 //  LOBBY  –  Space Adventure Game Screen
@@ -53,11 +55,17 @@ class _LobbyState extends State<Lobby> with TickerProviderStateMixin {
     super.dispose();
   }
 
+  // Método para navegar al perfil del jugador
   void _navigateToPlayerProfile() {
-    // TODO: Importar y navegar a PlayerProfileScreen
+    // TODO: Descomenta la siguiente línea cuando tengas PlayerProfileScreen.dart
     // Navigator.push(context, MaterialPageRoute(builder: (_) => const PlayerProfileScreen()));
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Navegar a Player Profile')),
+    
+    // Línea temporal para pruebas (ELIMINAR cuando integres el backend)
+    Navigator.push(
+      context, 
+      MaterialPageRoute(builder: (_) => const Scaffold(
+        body: Center(child: Text('Player Profile Screen', style: TextStyle(fontSize: 24))),
+      ))
     );
   }
 
@@ -156,7 +164,7 @@ class _LobbyState extends State<Lobby> with TickerProviderStateMixin {
 }
 
 // ─────────────────────────────────────────────
-//  TOP HUD
+//  TOP HUD - CORREGIDO
 // ─────────────────────────────────────────────
 class TopHud extends StatelessWidget {
   final Animation<double> floatAnim;
@@ -170,16 +178,24 @@ class TopHud extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onAvatarTap,
-      child: Row(
-        children: [
-          // Avatar clickable
-          AnimatedBuilder(
-            animation: floatAnim,
-            builder: (_, __) => Transform.translate(
-              offset: Offset(0, floatAnim.value * 0.3),
+    return Row(
+      children: [
+        // Avatar clicable - CORREGIDO CON HitTestBehavior
+        AnimatedBuilder(
+          animation: floatAnim,
+          builder: (_, __) => Transform.translate(
+            offset: Offset(0, floatAnim.value * 0.3),
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque, // ESTO PERMITE DETECTAR TOQUES
+              onTap: () {
+                // Debug para verificar que funciona
+                // ignore: avoid_print
+                print('✅ Avatar touched! Navigating to profile...');
+                onAvatarTap();
+              },
               child: Container(
+                width: 60, // Tamaño explícito
+                height: 60, // Tamaño explícito
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(color: const Color(0xFFE040FB), width: 2.5),
@@ -198,37 +214,38 @@ class TopHud extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: 10),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
-              Text(
-                'EVIE',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 2,
-                ),
+        ),
+        const SizedBox(width: 10),
+        // Texto de usuario (NO clicable)
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: const [
+            Text(
+              'EVIE',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 2,
               ),
-              Text(
-                'SPACE EXPLORER',
-                style: TextStyle(
-                  color: Color(0xFFCE93D8),
-                  fontSize: 10,
-                  letterSpacing: 1.5,
-                ),
+            ),
+            Text(
+              'SPACE EXPLORER',
+              style: TextStyle(
+                color: Color(0xFFCE93D8),
+                fontSize: 10,
+                letterSpacing: 1.5,
               ),
-            ],
-          ),
-          const Spacer(),
-          // Coins
-          HudBadge(icon: Icons.stars_rounded, value: '120', color: const Color(0xFFFFD740)),
-          const SizedBox(width: 10),
-          // Level
-          HudBadge(icon: Icons.rocket_launch_rounded, value: 'Lv.3', color: const Color(0xFF69F0AE)),
-        ],
-      ),
+            ),
+          ],
+        ),
+        const Spacer(),
+        // Coins
+        HudBadge(icon: Icons.stars_rounded, value: '120', color: const Color(0xFFFFD740)),
+        const SizedBox(width: 10),
+        // Level
+        HudBadge(icon: Icons.rocket_launch_rounded, value: 'Lv.3', color: const Color(0xFF69F0AE)),
+      ],
     );
   }
 }
@@ -415,9 +432,7 @@ class _MenuIconButtonState extends State<MenuIconButton> with SingleTickerProvid
       onTapUp: (_) => _ctrl.reverse(),
       onTapCancel: () => _ctrl.reverse(),
       onTap: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Navigate to ${widget.item.label}')),
-        );
+        // TODO: Implementar navegación real para cada ítem del menú
       },
       child: ScaleTransition(
         scale: _scale,
@@ -488,10 +503,9 @@ class _PlayButtonState extends State<PlayButton> with SingleTickerProviderStateM
       onTapDown: (_) => _scaleCtrl.forward(),
       onTapUp: (_) => _scaleCtrl.reverse(),
       onTapCancel: () => _scaleCtrl.reverse(),
-      onTap: () => Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const Placeholder()),
-      ),
+      onTap: () {
+        // TODO: Navegar a la pantalla del juego
+      },
       child: ScaleTransition(
         scale: _scaleAnim,
         child: Container(
@@ -566,9 +580,7 @@ class BottomNavigationBarCustom extends StatelessWidget {
             label: 'Settings',
             color: const Color(0xFF69F0AE),
             onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Open Settings')),
-              );
+              // TODO: Implementar navegación a Settings
             },
           ),
           BottomNavItem(
@@ -576,9 +588,7 @@ class BottomNavigationBarCustom extends StatelessWidget {
             label: 'Help',
             color: const Color(0xFF40C4FF),
             onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Open Help')),
-              );
+              // TODO: Implementar navegación a Help
             },
           ),
         ],
