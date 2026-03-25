@@ -1,7 +1,8 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'PlayerProfileScreen.dart';
-import 'levelMap.dart'; 
+import 'levelMap.dart';
+import 'characters.dart' as local_characters; // Importación agregada, prefijada para evitar conflicto de nombres
 
 class Lobby extends StatefulWidget {
   const Lobby({super.key});
@@ -58,11 +59,18 @@ class _LobbyState extends State<Lobby> with TickerProviderStateMixin {
     );
   }
 
-  // Nueva función para navegar al mapa de niveles
   void _navigateToLevelMap() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => const Levelmap()) // Cambia 'LevelMap' por el nombre real de tu clase en ese archivo
+      MaterialPageRoute(builder: (_) => const Levelmap())
+    );
+  }
+
+  // Nueva función para navegar a Characters
+  void _navigateToCharacters() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const local_characters.Characters())
     );
   }
 
@@ -126,15 +134,17 @@ class _LobbyState extends State<Lobby> with TickerProviderStateMixin {
             ),
           ),
 
-          // Center menu icons
+          // Center menu icons - POSICIÓN AJUSTADA (más abajo)
           Positioned(
-            top: size.height * 0.38,
+            top: size.height * 0.45, // Cambiado de 0.38 a 0.45
             left: 0,
             right: 0,
-            child: const CenterMenuIcons(),
+            child: CenterMenuIcons(
+              onCharacterTap: _navigateToCharacters, // Callback agregado
+            ),
           ),
 
-          // PLAY button modificado
+          // PLAY button
           Positioned(
             bottom: size.height * 0.18,
             left: 0,
@@ -144,7 +154,7 @@ class _LobbyState extends State<Lobby> with TickerProviderStateMixin {
                 animation: _glowAnim,
                 builder: (_, _) => PlayButton(
                   glowRadius: _glowAnim.value,
-                  onTap: _navigateToLevelMap, // Pasamos la función de navegación aquí
+                  onTap: _navigateToLevelMap,
                 ),
               ),
             ),
@@ -162,8 +172,6 @@ class _LobbyState extends State<Lobby> with TickerProviderStateMixin {
     );
   }
 }
-
-// ... (Clases TopHud, HudBadge, HeroRocket y CenterMenuIcons se mantienen igual) ...
 
 class TopHud extends StatelessWidget {
   final Animation<double> floatAnim;
@@ -202,7 +210,7 @@ class TopHud extends StatelessWidget {
                 ),
                 child: const CircleAvatar(
                   radius: 26,
-                  backgroundImage: AssetImage('assets/images/kovuIcon.png'), // Imagen local del personaje
+                  backgroundImage: AssetImage('assets/images/kovuIcon.png'),
                 ),
               ),
             ),
@@ -270,22 +278,37 @@ class HeroRocket extends StatelessWidget {
 }
 
 class CenterMenuIcons extends StatelessWidget {
-  const CenterMenuIcons({super.key});
+  final VoidCallback onCharacterTap; // Callback agregado
+  
+  const CenterMenuIcons({super.key, required this.onCharacterTap});
+  
   @override
   Widget build(BuildContext context) {
-    final menuItems = const [
-      MenuItemData(label: 'Story', icon: Icons.auto_stories_rounded, color: Color(0xFF40C4FF)),
-      MenuItemData(label: 'Characters', icon: Icons.people_rounded, color: Color(0xFFE040FB)),
-      MenuItemData(label: 'Achievements', icon: Icons.emoji_events_rounded, color: Color(0xFFFFD740)),
-      MenuItemData(label: 'Rewards', icon: Icons.card_giftcard_rounded, color: Color(0xFF69F0AE)),
-      MenuItemData(label: 'Shop', icon: Icons.storefront_rounded, color: Color(0xFFFF6D00)),
-      MenuItemData(label: 'Collection', icon: Icons.collections_bookmark_rounded, color: Color(0xFFEA80FC)),
+    final screenWidth = MediaQuery.of(context).size.width;
+    final buttonWidth = (screenWidth - 48) / 3; // 3 columnas con padding
+    
+    final menuItems = [
+      MenuItemData(label: 'Story', icon: Icons.auto_stories_rounded, color: const Color(0xFF40C4FF), onTap: () {}),
+      MenuItemData(label: 'Characters', icon: Icons.people_rounded, color: const Color(0xFFE040FB), onTap: onCharacterTap), // Callback asignado
+      MenuItemData(label: 'Achievements', icon: Icons.emoji_events_rounded, color: const Color(0xFFFFD740), onTap: () {}),
+      MenuItemData(label: 'Rewards', icon: Icons.card_giftcard_rounded, color: const Color(0xFF69F0AE), onTap: () {}),
+      MenuItemData(label: 'Shop', icon: Icons.storefront_rounded, color: const Color(0xFFFF6D00), onTap: () {}),
+      MenuItemData(label: 'Collection', icon: Icons.collections_bookmark_rounded, color: const Color(0xFFEA80FC), onTap: () {}),
     ];
-    return Wrap(
-      alignment: WrapAlignment.center,
-      spacing: 12,
-      runSpacing: 12,
-      children: menuItems.map((item) => MenuIconButton(item: item)).toList(),
+    
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Wrap(
+        alignment: WrapAlignment.center,
+        spacing: 12,
+        runSpacing: 12,
+        children: menuItems.map((item) => 
+          SizedBox(
+            width: buttonWidth > 100 ? 100 : buttonWidth, // Máximo 100px de ancho
+            child: MenuIconButton(item: item),
+          )
+        ).toList(),
+      ),
     );
   }
 }
@@ -294,7 +317,8 @@ class MenuItemData {
   final String label;
   final IconData icon;
   final Color color;
-  const MenuItemData({required this.label, required this.icon, required this.color});
+  final VoidCallback onTap;
+  const MenuItemData({required this.label, required this.icon, required this.color, required this.onTap});
 }
 
 class MenuIconButton extends StatefulWidget {
@@ -307,24 +331,31 @@ class MenuIconButton extends StatefulWidget {
 class _MenuIconButtonState extends State<MenuIconButton> with SingleTickerProviderStateMixin {
   late AnimationController _ctrl;
   late Animation<double> _scale;
+  
   @override
   void initState() {
     super.initState();
     _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 120));
     _scale = Tween<double>(begin: 1.0, end: 0.88).animate(_ctrl);
   }
+  
   @override
-  void dispose() { _ctrl.dispose(); super.dispose(); }
+  void dispose() { 
+    _ctrl.dispose(); 
+    super.dispose(); 
+  }
+  
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTapDown: (_) => _ctrl.forward(),
       onTapUp: (_) => _ctrl.reverse(),
       onTapCancel: () => _ctrl.reverse(),
+      onTap: widget.item.onTap,
       child: ScaleTransition(
         scale: _scale,
         child: Container(
-          width: 75, height: 85,
+          height: 85,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(18),
             color: Colors.black.withValues(alpha: 0.50),
@@ -334,7 +365,12 @@ class _MenuIconButtonState extends State<MenuIconButton> with SingleTickerProvid
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(widget.item.icon, color: widget.item.color, size: 28),
-              Text(widget.item.label, style: TextStyle(color: widget.item.color, fontSize: 9, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 4),
+              Text(
+                widget.item.label, 
+                style: TextStyle(color: widget.item.color, fontSize: 9, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+              ),
             ],
           ),
         ),
@@ -343,12 +379,9 @@ class _MenuIconButtonState extends State<MenuIconButton> with SingleTickerProvid
   }
 }
 
-// ─────────────────────────────────────────────
-//  PLAY BUTTON (MODIFICADO)
-// ─────────────────────────────────────────────
 class PlayButton extends StatefulWidget {
   final double glowRadius;
-  final VoidCallback onTap; // Añadido callback
+  final VoidCallback onTap;
 
   const PlayButton({super.key, required this.glowRadius, required this.onTap});
 
@@ -379,7 +412,7 @@ class _PlayButtonState extends State<PlayButton> with SingleTickerProviderStateM
       onTapDown: (_) => _scaleCtrl.forward(),
       onTapUp: (_) => _scaleCtrl.reverse(),
       onTapCancel: () => _scaleCtrl.reverse(),
-      onTap: widget.onTap, // Ejecuta la navegación
+      onTap: widget.onTap,
       child: ScaleTransition(
         scale: _scaleAnim,
         child: Container(
