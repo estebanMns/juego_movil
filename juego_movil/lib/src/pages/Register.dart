@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart'; // Agregado para gestión de estado
+import 'package:juego_movil/models/PlayerModel.dart'; // Agregado para el modelo de datos
+import 'package:juego_movil/service/database_helper.dart'; // Agregado para conexión a SQLite
 import 'login.dart';
 
 class Register extends StatelessWidget {
@@ -93,7 +96,7 @@ class Register extends StatelessWidget {
                       ),
                       child: Column(
                         children: [
-                          // Campo Nombre
+                          // Campo Nombre (Este será tu Username para el Login)
                           TextField(
                             controller: nameController,
                             style: const TextStyle(color: Colors.white),
@@ -246,7 +249,6 @@ class Register extends StatelessWidget {
                         ),
                         TextButton(
                           onPressed: () {
-                            // Navegación directa a Login
                             Navigator.push(
                               context,
                               MaterialPageRoute(builder: (_) => const Login()),
@@ -274,69 +276,46 @@ class Register extends StatelessWidget {
     );
   }
 
-  void _handleRegister(
-    BuildContext context,
-    String name,
-    String email,
-    String password,
-    String confirmPassword,
-  ) {
-    // ==========================================
-    // TODO: REEMPLAZAR CON TU BACKEND
-    // ==========================================
-    // Aquí iría la llamada a tu API de registro
-    // Ejemplo con Firebase Auth, Supabase, o tu propio backend
-    
-    // Validaciones básicas
-    if (name.isEmpty || email.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Por favor completa todos los campos'),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
-    }
+  // Lógica para guardar el nuevo usuario en SQLite
+  // ... (Toda tu UI anterior se mantiene igual)
 
-    if (password != confirmPassword) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Las contraseñas no coinciden'),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
-    }
+void _handleRegister(
+  BuildContext context,
+  String name,
+  String email,
+  String password,
+  String confirmPassword,
+) async {
+  if (name.isEmpty || email.isEmpty || password.isEmpty) return;
 
-    if (password.length < 6) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('La contraseña debe tener al menos 6 caracteres'),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
-    }
-
-    // Simulación de registro exitoso (SOLO PARA PRUEBAS)
-    // En producción, esto se reemplaza con la llamada al backend
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('¡Registro exitoso! Por favor inicia sesión'),
-        backgroundColor: Colors.green,
-      ),
+  try {
+    final nuevoUsuario = PlayerModel(
+      uid: DateTime.now().millisecondsSinceEpoch.toString(),
+      username: name.trim(), // Este es el nombre para el Login
+      avatarUrl: 'assets/images/avatar.png',
+      coins: 100,
+      level: 1,
+      xp: 0,
+      xpToNextLevel: 100,
+      rank: 'RECLUTA',
+      scanAccuracy: 0.0,
+      totalScans: 0,
+      dogsCollected: 0,
     );
 
-    // Regresar al login después de 2 segundos
-    Future.delayed(const Duration(seconds: 2), () {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const Login()),
-      );
+    // GUARDAR EN SQLITE
+    await DatabaseHelper.instance.savePlayer(nuevoUsuario);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('¡Usuario registrado con éxito!'), backgroundColor: Colors.green),
+    );
+
+    Future.delayed(const Duration(seconds: 1), () {
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const Login()));
     });
-    
-    // ==========================================
-    // FIN DEL CÓDIGO DE PRUEBA
-    // ==========================================
+  } catch (e) {
+    print("Error al registrar: $e");
   }
+}   
+  
 }
