@@ -13,14 +13,9 @@ class Lobby extends StatefulWidget {
 }
 
 class _LobbyState extends State<Lobby> with TickerProviderStateMixin {
-  // Ambient floating animation
   late AnimationController _floatController;
   late Animation<double> _floatAnim;
-
-  // Star twinkle
   late AnimationController _twinkleController;
-
-  // Title glow pulse
   late AnimationController _glowController;
   late Animation<double> _glowAnim;
 
@@ -58,6 +53,14 @@ class _LobbyState extends State<Lobby> with TickerProviderStateMixin {
     super.dispose();
   }
 
+  void _navigateToPlayerProfile() {
+    // TODO: Importar y navegar a PlayerProfileScreen
+    // Navigator.push(context, MaterialPageRoute(builder: (_) => const PlayerProfileScreen()));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Navegar a Player Profile')),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -65,7 +68,7 @@ class _LobbyState extends State<Lobby> with TickerProviderStateMixin {
     return Scaffold(
       body: Stack(
         children: [
-          // ── Background ──────────────────────────────
+          // Background
           Positioned.fill(
             child: Image.asset(
               'assets/images/fondo_espacio.jpg',
@@ -73,7 +76,7 @@ class _LobbyState extends State<Lobby> with TickerProviderStateMixin {
             ),
           ),
 
-          // Dark overlay for readability
+          // Dark overlay
           Positioned.fill(
             child: Container(
               decoration: const BoxDecoration(
@@ -90,71 +93,61 @@ class _LobbyState extends State<Lobby> with TickerProviderStateMixin {
             ),
           ),
 
-          // ── Star particles ───────────────────────────
-          ...List.generate(28, (i) => _StarParticle(index: i, controller: _twinkleController)),
+          // Star particles
+          ...List.generate(28, (i) => StarParticle(index: i, controller: _twinkleController)),
 
-          // ── Top HUD ─────────────────────────────────
+          // Top HUD
           Positioned(
             top: MediaQuery.of(context).padding.top + 12,
             left: 16,
             right: 16,
-            child: _TopHud(floatAnim: _floatAnim),
+            child: TopHud(
+              floatAnim: _floatAnim,
+              onAvatarTap: _navigateToPlayerProfile,
+            ),
           ),
 
-          // ── Floating rocket / hero center ───────────
+          // Floating rocket
           Positioned(
-            top: size.height * 0.20,
+            top: size.height * 0.12,
             left: 0,
             right: 0,
             child: AnimatedBuilder(
               animation: _floatAnim,
               builder: (_, __) => Transform.translate(
                 offset: Offset(0, _floatAnim.value),
-                child: _HeroRocket(),
+                child: const HeroRocket(),
               ),
             ),
           ),
 
-          // ── PLAY button (giant, center) ──────────────
+          // Center menu icons
           Positioned(
-            bottom: size.height * 0.22,
+            top: size.height * 0.38,
+            left: 0,
+            right: 0,
+            child: const CenterMenuIcons(),
+          ),
+
+          // PLAY button
+          Positioned(
+            bottom: size.height * 0.18,
             left: 0,
             right: 0,
             child: Center(
               child: AnimatedBuilder(
                 animation: _glowAnim,
-                builder: (_, __) => _PlayButton(glowRadius: _glowAnim.value),
+                builder: (_, __) => PlayButton(glowRadius: _glowAnim.value),
               ),
             ),
           ),
 
-          // ── Side-menu buttons (left) ─────────────────
-          Positioned(
-            left: 14,
-            bottom: size.height * 0.14,
-            child: _SideMenu(
-              buttons: const ['Story', 'Characters', 'Achievements'],
-              onTaps: [() {}, () {}, () {}],
-            ),
-          ),
-
-          // ── Side-menu buttons (right) ────────────────
-          Positioned(
-            right: 14,
-            bottom: size.height * 0.14,
-            child: _SideMenu(
-              buttons: const ['Rewards', 'Shop', 'Collection'],
-              onTaps: [() {}, () {}, () {}],
-              alignRight: true,
-            ),
-          ),
-
-          // ── Bottom bar ───────────────────────────────
+          // Bottom navigation bar
           Positioned(
             bottom: 0,
             left: 0,
             right: 0,
-            child: _BottomBar(),
+            child: const BottomNavigationBarCustom(),
           ),
         ],
       ),
@@ -165,67 +158,92 @@ class _LobbyState extends State<Lobby> with TickerProviderStateMixin {
 // ─────────────────────────────────────────────
 //  TOP HUD
 // ─────────────────────────────────────────────
-class _TopHud extends StatelessWidget {
+class TopHud extends StatelessWidget {
   final Animation<double> floatAnim;
-  const _TopHud({required this.floatAnim});
+  final VoidCallback onAvatarTap;
+
+  const TopHud({
+    super.key,
+    required this.floatAnim,
+    required this.onAvatarTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        // Avatar
-        Container(
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(color: const Color(0xFFE040FB), width: 2.5),
-            boxShadow: [
-              BoxShadow(color: const Color(0xFFE040FB).withValues(alpha: 0.6), blurRadius: 12, spreadRadius: 2),
+    return GestureDetector(
+      onTap: onAvatarTap,
+      child: Row(
+        children: [
+          // Avatar clickable
+          AnimatedBuilder(
+            animation: floatAnim,
+            builder: (_, __) => Transform.translate(
+              offset: Offset(0, floatAnim.value * 0.3),
+              child: Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: const Color(0xFFE040FB), width: 2.5),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFFE040FB).withValues(alpha: 0.6),
+                      blurRadius: 12,
+                      spreadRadius: 2,
+                    ),
+                  ],
+                ),
+                child: const CircleAvatar(
+                  radius: 26,
+                  backgroundImage: AssetImage('assets/images/avatar.jpg'),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: const [
+              Text(
+                'EVIE',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 2,
+                ),
+              ),
+              Text(
+                'SPACE EXPLORER',
+                style: TextStyle(
+                  color: Color(0xFFCE93D8),
+                  fontSize: 10,
+                  letterSpacing: 1.5,
+                ),
+              ),
             ],
           ),
-          child: const CircleAvatar(
-            radius: 26,
-            backgroundImage: AssetImage('assets/images/avatar.jpg'),
-          ),
-        ),
-        const SizedBox(width: 10),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
-            Text(
-              'EVIE',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.w900,
-                letterSpacing: 2,
-              ),
-            ),
-            Text(
-              'SPACE EXPLORER',
-              style: TextStyle(
-                color: Color(0xFFCE93D8),
-                fontSize: 10,
-                letterSpacing: 1.5,
-              ),
-            ),
-          ],
-        ),
-        const Spacer(),
-        // Coins
-        _HudBadge(icon: Icons.stars_rounded, value: '120', color: const Color(0xFFFFD740)),
-        const SizedBox(width: 10),
-        // Level
-        _HudBadge(icon: Icons.rocket_launch_rounded, value: 'Lv.3', color: const Color(0xFF69F0AE)),
-      ],
+          const Spacer(),
+          // Coins
+          HudBadge(icon: Icons.stars_rounded, value: '120', color: const Color(0xFFFFD740)),
+          const SizedBox(width: 10),
+          // Level
+          HudBadge(icon: Icons.rocket_launch_rounded, value: 'Lv.3', color: const Color(0xFF69F0AE)),
+        ],
+      ),
     );
   }
 }
 
-class _HudBadge extends StatelessWidget {
+class HudBadge extends StatelessWidget {
   final IconData icon;
   final String value;
   final Color color;
-  const _HudBadge({required this.icon, required this.value, required this.color});
+
+  const HudBadge({
+    super.key,
+    required this.icon,
+    required this.value,
+    required this.color,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -260,73 +278,194 @@ class _HudBadge extends StatelessWidget {
 // ─────────────────────────────────────────────
 //  HERO ROCKET
 // ─────────────────────────────────────────────
-class _HeroRocket extends StatelessWidget {
+class HeroRocket extends StatelessWidget {
+  const HeroRocket({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        children: [
-          // Glow ring around the rocket
-          Container(
-            width: 130,
-            height: 130,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(color: const Color(0xFF7C4DFF).withValues(alpha: 0.55), blurRadius: 40, spreadRadius: 10),
-                BoxShadow(color: const Color(0xFFE040FB).withValues(alpha: 0.30), blurRadius: 60, spreadRadius: 20),
-              ],
-            ),
-            child: ClipOval(
-              child: Image.asset(
-                'assets/images/yoongi.jpg',
-                fit: BoxFit.cover,
+    return Column(
+      children: [
+        Container(
+          width: 130,
+          height: 130,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF7C4DFF).withValues(alpha: 0.55),
+                blurRadius: 40,
+                spreadRadius: 10,
               ),
+              BoxShadow(
+                color: const Color(0xFFE040FB).withValues(alpha: 0.30),
+                blurRadius: 60,
+                spreadRadius: 20,
+              ),
+            ],
+          ),
+          child: ClipOval(
+            child: Image.asset(
+              'assets/images/yoongi.jpg',
+              fit: BoxFit.cover,
             ),
           ),
-          const SizedBox(height: 10),
-          // Planet / title subtitle
-          ShaderMask(
-            shaderCallback: (bounds) => const LinearGradient(
-              colors: [Color(0xFFE040FB), Color(0xFF7C4DFF), Color(0xFF40C4FF)],
-            ).createShader(bounds),
-            child: const Text(
-              'STAR QUEST',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 32,
-                fontWeight: FontWeight.w900,
-                letterSpacing: 5,
-              ),
-            ),
-          ),
-          const SizedBox(height: 4),
-          const Text(
-            'GALAXY ADVENTURE',
+        ),
+        const SizedBox(height: 10),
+        ShaderMask(
+          shaderCallback: (bounds) => const LinearGradient(
+            colors: [Color(0xFFE040FB), Color(0xFF7C4DFF), Color(0xFF40C4FF)],
+          ).createShader(bounds),
+          child: const Text(
+            'STAR QUEST',
             style: TextStyle(
-              color: Color(0xFFCE93D8),
-              fontSize: 11,
-              letterSpacing: 4,
+              color: Colors.white,
+              fontSize: 32,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 5,
             ),
           ),
-        ],
+        ),
+        const SizedBox(height: 4),
+        const Text(
+          'GALAXY ADVENTURE',
+          style: TextStyle(
+            color: Color(0xFFCE93D8),
+            fontSize: 11,
+            letterSpacing: 4,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ─────────────────────────────────────────────
+//  CENTER MENU ICONS
+// ─────────────────────────────────────────────
+class CenterMenuIcons extends StatelessWidget {
+  const CenterMenuIcons({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final menuItems = const [
+      MenuItemData(label: 'Story', icon: Icons.auto_stories_rounded, color: Color(0xFF40C4FF)),
+      MenuItemData(label: 'Characters', icon: Icons.people_rounded, color: Color(0xFFE040FB)),
+      MenuItemData(label: 'Achievements', icon: Icons.emoji_events_rounded, color: Color(0xFFFFD740)),
+      MenuItemData(label: 'Rewards', icon: Icons.card_giftcard_rounded, color: Color(0xFF69F0AE)),
+      MenuItemData(label: 'Shop', icon: Icons.storefront_rounded, color: Color(0xFFFF6D00)),
+      MenuItemData(label: 'Collection', icon: Icons.collections_bookmark_rounded, color: Color(0xFFEA80FC)),
+    ];
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Wrap(
+        alignment: WrapAlignment.center,
+        spacing: 12,
+        runSpacing: 12,
+        children: menuItems.map((item) {
+          return MenuIconButton(item: item);
+        }).toList(),
+      ),
+    );
+  }
+}
+
+class MenuItemData {
+  final String label;
+  final IconData icon;
+  final Color color;
+
+  const MenuItemData({
+    required this.label,
+    required this.icon,
+    required this.color,
+  });
+}
+
+class MenuIconButton extends StatefulWidget {
+  final MenuItemData item;
+
+  const MenuIconButton({super.key, required this.item});
+
+  @override
+  State<MenuIconButton> createState() => _MenuIconButtonState();
+}
+
+class _MenuIconButtonState extends State<MenuIconButton> with SingleTickerProviderStateMixin {
+  late AnimationController _ctrl;
+  late Animation<double> _scale;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 120));
+    _scale = Tween<double>(begin: 1.0, end: 0.88).animate(_ctrl);
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTapDown: (_) => _ctrl.forward(),
+      onTapUp: (_) => _ctrl.reverse(),
+      onTapCancel: () => _ctrl.reverse(),
+      onTap: () {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Navigate to ${widget.item.label}')),
+        );
+      },
+      child: ScaleTransition(
+        scale: _scale,
+        child: Container(
+          width: 75,
+          height: 85,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(18),
+            color: Colors.black.withValues(alpha: 0.50),
+            border: Border.all(color: widget.item.color.withValues(alpha: 0.55), width: 1.5),
+            boxShadow: [BoxShadow(color: widget.item.color.withValues(alpha: 0.25), blurRadius: 12)],
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(widget.item.icon, color: widget.item.color, size: 28),
+              const SizedBox(height: 6),
+              Text(
+                widget.item.label,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: widget.item.color,
+                  fontSize: 9,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 0.5,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
 }
 
 // ─────────────────────────────────────────────
-//  BIG PLAY BUTTON
+//  PLAY BUTTON
 // ─────────────────────────────────────────────
-class _PlayButton extends StatefulWidget {
+class PlayButton extends StatefulWidget {
   final double glowRadius;
-  const _PlayButton({required this.glowRadius});
+
+  const PlayButton({super.key, required this.glowRadius});
 
   @override
-  State<_PlayButton> createState() => _PlayButtonState();
+  State<PlayButton> createState() => _PlayButtonState();
 }
 
-class _PlayButtonState extends State<_PlayButton> with SingleTickerProviderStateMixin {
+class _PlayButtonState extends State<PlayButton> with SingleTickerProviderStateMixin {
   late AnimationController _scaleCtrl;
   late Animation<double> _scaleAnim;
 
@@ -371,9 +510,9 @@ class _PlayButtonState extends State<_PlayButton> with SingleTickerProviderState
               ),
             ],
           ),
-          child: Row(
+          child: const Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
+            children: [
               Icon(Icons.rocket_launch, color: Colors.white, size: 24),
               SizedBox(width: 10),
               Text(
@@ -394,54 +533,87 @@ class _PlayButtonState extends State<_PlayButton> with SingleTickerProviderState
 }
 
 // ─────────────────────────────────────────────
-//  SIDE MENU
+//  BOTTOM NAVIGATION BAR
 // ─────────────────────────────────────────────
-class _SideMenu extends StatelessWidget {
-  final List<String> buttons;
-  final List<VoidCallback> onTaps;
-  final bool alignRight;
-
-  const _SideMenu({
-    required this.buttons,
-    required this.onTaps,
-    this.alignRight = false,
-  });
+class BottomNavigationBarCustom extends StatelessWidget {
+  const BottomNavigationBarCustom({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: alignRight ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: List.generate(buttons.length, (i) {
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 10),
-          child: _SideButton(label: buttons[i], onTap: onTaps[i], alignRight: alignRight),
-        );
-      }),
+    return Container(
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).padding.bottom + 16,
+        top: 16,
+        left: 40,
+        right: 40,
+      ),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.bottomCenter,
+          end: Alignment.topCenter,
+          colors: [
+            Colors.black.withValues(alpha: 0.90),
+            Colors.black.withValues(alpha: 0.40),
+            Colors.transparent,
+          ],
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          BottomNavItem(
+            icon: Icons.settings_rounded,
+            label: 'Settings',
+            color: const Color(0xFF69F0AE),
+            onTap: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Open Settings')),
+              );
+            },
+          ),
+          BottomNavItem(
+            icon: Icons.help_outline_rounded,
+            label: 'Help',
+            color: const Color(0xFF40C4FF),
+            onTap: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Open Help')),
+              );
+            },
+          ),
+        ],
+      ),
     );
   }
 }
 
-class _SideButton extends StatefulWidget {
+class BottomNavItem extends StatefulWidget {
+  final IconData icon;
   final String label;
+  final Color color;
   final VoidCallback onTap;
-  final bool alignRight;
 
-  const _SideButton({required this.label, required this.onTap, this.alignRight = false});
+  const BottomNavItem({
+    super.key,
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.onTap,
+  });
 
   @override
-  State<_SideButton> createState() => _SideButtonState();
+  State<BottomNavItem> createState() => _BottomNavItemState();
 }
 
-class _SideButtonState extends State<_SideButton> with SingleTickerProviderStateMixin {
+class _BottomNavItemState extends State<BottomNavItem> with SingleTickerProviderStateMixin {
   late AnimationController _ctrl;
   late Animation<double> _scale;
 
   @override
   void initState() {
     super.initState();
-    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 120));
-    _scale = Tween<double>(begin: 1.0, end: 0.88).animate(_ctrl);
+    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 150));
+    _scale = Tween<double>(begin: 1.0, end: 0.90).animate(_ctrl);
   }
 
   @override
@@ -450,29 +622,8 @@ class _SideButtonState extends State<_SideButton> with SingleTickerProviderState
     super.dispose();
   }
 
-  static const _icons = {
-    'Story': Icons.auto_stories_rounded,
-    'Characters': Icons.people_rounded,
-    'Achievements': Icons.emoji_events_rounded,
-    'Rewards': Icons.card_giftcard_rounded,
-    'Shop': Icons.storefront_rounded,
-    'Collection': Icons.collections_bookmark_rounded,
-  };
-
-  static const _colors = {
-    'Story': Color(0xFF40C4FF),
-    'Characters': Color(0xFFE040FB),
-    'Achievements': Color(0xFFFFD740),
-    'Rewards': Color(0xFF69F0AE),
-    'Shop': Color(0xFFFF6D00),
-    'Collection': Color(0xFFEA80FC),
-  };
-
   @override
   Widget build(BuildContext context) {
-    final color = _colors[widget.label] ?? Colors.white;
-    final icon = _icons[widget.label] ?? Icons.star;
-
     return GestureDetector(
       onTapDown: (_) => _ctrl.forward(),
       onTapUp: (_) => _ctrl.reverse(),
@@ -480,92 +631,30 @@ class _SideButtonState extends State<_SideButton> with SingleTickerProviderState
       onTap: widget.onTap,
       child: ScaleTransition(
         scale: _scale,
-        child: Container(
-          width: 80,
-          padding: const EdgeInsets.symmetric(vertical: 10),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(18),
-            color: Colors.black.withValues(alpha: 0.50),
-            border: Border.all(color: color.withValues(alpha: 0.55), width: 1.5),
-            boxShadow: [BoxShadow(color: color.withValues(alpha: 0.25), blurRadius: 12)],
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, color: color, size: 26),
-              const SizedBox(height: 5),
-              Text(
-                widget.label,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: color,
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 0.5,
-                ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: widget.color.withValues(alpha: 0.15),
+                border: Border.all(color: widget.color.withValues(alpha: 0.5), width: 1.5),
               ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ─────────────────────────────────────────────
-//  BOTTOM BAR
-// ─────────────────────────────────────────────
-class _BottomBar extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).padding.bottom + 10,
-        top: 12,
-      ),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.bottomCenter,
-          end: Alignment.topCenter,
-          colors: [
-            Colors.black.withValues(alpha: 0.80),
-            Colors.transparent,
+              child: Icon(widget.icon, color: widget.color, size: 26),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              widget.label,
+              style: TextStyle(
+                color: widget.color,
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 0.8,
+              ),
+            ),
           ],
         ),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          _BottomBarItem(icon: Icons.settings_rounded, label: 'Settings', onTap: () {}),
-          _BottomBarItem(icon: Icons.person_rounded, label: 'Profile', onTap: () {}),
-          _BottomBarItem(icon: Icons.help_rounded, label: 'Help', onTap: () {}),
-        ],
-      ),
-    );
-  }
-}
-
-class _BottomBarItem extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-
-  const _BottomBarItem({required this.icon, required this.label, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, color: Colors.white70, size: 24),
-          const SizedBox(height: 3),
-          Text(
-            label,
-            style: const TextStyle(color: Colors.white60, fontSize: 10, letterSpacing: 0.5),
-          ),
-        ],
       ),
     );
   }
@@ -574,11 +663,11 @@ class _BottomBarItem extends StatelessWidget {
 // ─────────────────────────────────────────────
 //  STAR PARTICLES
 // ─────────────────────────────────────────────
-class _StarParticle extends StatelessWidget {
+class StarParticle extends StatelessWidget {
   final int index;
   final AnimationController controller;
 
-  const _StarParticle({required this.index, required this.controller});
+  const StarParticle({super.key, required this.index, required this.controller});
 
   @override
   Widget build(BuildContext context) {
