@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import './pages/PerfilJugador.dart';
+import 'package:juego_movil/src/pages/PlayerProfileScreen.dart';
 import './pages/home.dart';
-import './pages/lobby.dart';
+import './pages/Lobby.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
@@ -10,7 +10,7 @@ class App extends StatelessWidget {
   Widget build(BuildContext context){
     return MaterialApp(
       home: Center(
-        child: Home(),
+        child: PlayerProfileScreen(),
       ),
     );
   }
