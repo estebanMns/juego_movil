@@ -2,16 +2,14 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'dart:math' as math;
 
-// Importaciones según TU estructura
-import 'package:juego_movil/models/PlayerModel.dart';
-import 'package:juego_movil/config/AppColors.dart';
+// Importaciones optimizadas
+import 'package:juego_movil/models/player_model.dart';
 
 class PlayerProfileController extends GetxController with GetSingleTickerProviderStateMixin {
   
   // --- ESTADO DEL JUGADOR ---
-  // Usamos .obs para que la UI se actualice automáticamente
+  // Rxn permite que el valor inicial sea nulo hasta que carguen los datos
   final player = Rxn<PlayerModel>();
   final isLoading = true.obs;
 
@@ -31,7 +29,7 @@ class PlayerProfileController extends GetxController with GetSingleTickerProvide
 
     orbitAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(pulseController);
 
-    // Simulamos la carga de datos (Aquí conectarás con tu DB o Servicio más adelante)
+    // Carga inicial de datos
     _loadPlayerData();
   }
 
@@ -41,11 +39,12 @@ class PlayerProfileController extends GetxController with GetSingleTickerProvide
     // Simulación de delay de red
     await Future.delayed(const Duration(milliseconds: 800));
 
-    // Datos de prueba (Hardcoded por ahora)
+    // Datos de prueba
+    // Nota: Asegúrate de que PlayerModel coincida con estos campos
     player.value = const PlayerModel(
       uid: 'u001',
       username: 'Perro Blanco',
-      avatarUrl: 'assets/images/yoongi.jpg', // Imagen local del personaje
+      avatarUrl: 'https://tu-url-de-imagen.com/yoongi.jpg', // Cambiado a URL para evitar errores si no está en assets
       coins: 0,
       level: 0,
       xp: 0,
@@ -62,15 +61,16 @@ class PlayerProfileController extends GetxController with GetSingleTickerProvide
   // --- MÉTODOS DE ACCIÓN ---
   
   void refreshStats() {
-    // Aquí podrías llamar a tu ai_detector_service o gemini_service
     _loadPlayerData();
   }
 
+  // Getter útil para la barra de progreso
   double get xpProgress => (player.value?.xp ?? 0) / (player.value?.xpToNextLevel ?? 1);
 
   @override
   void onClose() {
-    pulseController.dispose(); // Limpieza de memoria
+    // Es vital hacer dispose para evitar fugas de memoria (memory leaks)
+    pulseController.dispose(); 
     super.onClose();
   }
 }

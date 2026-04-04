@@ -1,42 +1,36 @@
-// Archivo: lib/src/pages/PerfilJugador.dart
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'dart:ui';
 import 'dart:math' as math;
-
-// Importaciones adaptadas a la estructura estándar (snake_case)
-import 'package:juego_movil/config/AppColors.dart';
-import 'package:juego_movil/models/PlayerModel.dart';
-import 'package:juego_movil/components/PlayerProfileController.dart';
+import 'package:juego_movil/config/app_colors.dart';
+import 'package:juego_movil/components/player_profile_controller.dart';
 
 class PlayerProfileScreen extends StatelessWidget {
   const PlayerProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Inyectamos el controlador que creamos en la carpeta components
     final controller = Get.put(PlayerProfileController());
 
     return Scaffold(
       backgroundColor: AppColors.background,
       body: Stack(
         children: [
+          // 1. Imagen de fondo principal
           Container(
             decoration: const BoxDecoration(
               image: DecorationImage(
-                image: AssetImage('assets/images/fondoperroblanco.png'), // <-- CAMBIA ESTO
-                fit: BoxFit.cover, // Para que la imagen cubra toda la pantalla
+                image: AssetImage('assets/images/fondoperroblanco.png'), 
+                fit: BoxFit.cover,
                 alignment: Alignment.center,
               ),
             ),
           ),
-          // ===================================================================
 
-          // 2. Fondo Galáctico Animado (este ya lo tienes)
+          // 2. Fondo Galáctico Animado
           _GalaxyBackground(controller: controller),
 
-          // 3. Contenido Principal con SafeArea y Scroll
+          // 3. Contenido Principal
           SafeArea(
             child: Obx(() {
               if (controller.isLoading.value) {
@@ -45,8 +39,6 @@ class PlayerProfileScreen extends StatelessWidget {
                 );
               }
 
-              // Usamos el operador ! porque Rxn puede ser nulo,
-              // pero aquí ya verificamos que no es así.
               final p = controller.player.value!;
 
               return SingleChildScrollView(
@@ -54,16 +46,14 @@ class PlayerProfileScreen extends StatelessWidget {
                 child: Column(
                   children: [
                     const SizedBox(height: 20),
-                    _TopBar(coins: p.coins),
+                    const _TopBar(), // Quitamos el paso de monedas si prefieres usar el controller directo o lo dejamos simple
                     
                     const SizedBox(height: 40),
                     
-                    // Avatar con efecto de órbita y badge de nivel
                     _PlayerAvatar(avatarUrl: p.avatarUrl, level: p.level),
                     
                     const SizedBox(height: 15),
                     
-                    // Nombre y Rango del Jugador
                     Text(
                       p.username,
                       style: const TextStyle(
@@ -79,18 +69,16 @@ class PlayerProfileScreen extends StatelessWidget {
                         color: AppColors.cyan,
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
-                        letterSpacing: 4, // Espaciado Cyberpunk
+                        letterSpacing: 4,
                       ),
                     ),
 
                     const SizedBox(height: 30),
                     
-                    // Tarjeta de progreso de nivel
                     _LevelProgressCard(xp: p.xp, nextLevel: p.xpToNextLevel),
                     
                     const SizedBox(height: 25),
                     
-                    // Grid de estadísticas principales
                     _StatsGrid(
                       accuracy: p.scanAccuracy,
                       totalScans: p.totalScans,
@@ -109,28 +97,28 @@ class PlayerProfileScreen extends StatelessWidget {
   }
 }
 
-// =============================================================================
-// WIDGETS INTERNOS DE LA PANTALLA (NO REUTILIZABLES FUERA AQUÍ)
-// =============================================================================
-
 class _TopBar extends StatelessWidget {
-  final int coins;
-  const _TopBar({required this.coins});
+  const _TopBar();
 
   @override
   Widget build(BuildContext context) {
+    final controller = Get.find<PlayerProfileController>();
+    final p = controller.player.value!;
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        // Botón atrás con efecto cristal
+        // BOTÓN ATRÁS CORREGIDO PARA IR AL LOBBY
         _GlassButton(
           icon: Icons.arrow_back_ios_new,
-          onTap: () => Get.back(), // Get.back() funciona gracias a GetMaterialApp en app.dart
+          onTap: () {
+            // Esto asegura que limpie la pantalla actual y vaya al Lobby
+            Get.offAllNamed('/lobby'); 
+          },
         ),
-        // Chip de monedas neón
         _GlassChip(
           child: Text(
-            '🪙 $coins',
+            '🪙 ${p.coins}',
             style: const TextStyle(
               color: AppColors.gold,
               fontWeight: FontWeight.bold,
@@ -138,7 +126,6 @@ class _TopBar extends StatelessWidget {
             ),
           ),
         ),
-        // Botón compartir cristal
         _GlassButton(icon: Icons.share_outlined, onTap: () {}),
       ],
     );
@@ -155,28 +142,26 @@ class _PlayerAvatar extends StatelessWidget {
     return Stack(
       alignment: Alignment.center,
       children: [
-        // Borde neón pulsante (el efecto lo da la sombra)
         Container(
           width: 140,
           height: 140,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            border: Border.all(color: AppColors.cyan.withOpacity(0.5), width: 2),
+            // Corregido: withValues
+            border: Border.all(color: AppColors.cyan.withValues(alpha: 0.5), width: 2),
             boxShadow: [
               BoxShadow(
-                color: AppColors.cyan.withOpacity(0.2),
+                color: AppColors.cyan.withValues(alpha: 0.2),
                 blurRadius: 20,
                 spreadRadius: 5,
               ),
             ],
           ),
           child: CircleAvatar(
-            // Imagen de red (puedes cambiarlo a AssetImage si tienes imágenes locales)
             backgroundImage: NetworkImage(avatarUrl), 
-            backgroundColor: Colors.white10, // Fondo por si la imagen no carga
+            backgroundColor: Colors.white10,
           ),
         ),
-        // Badge de nivel superpuesto
         Positioned(
           bottom: 0,
           child: _GlassChip(
@@ -202,14 +187,12 @@ class _LevelProgressCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Calculamos el progreso (de 0.0 a 1.0)
     double progress = (xp / nextLevel).clamp(0.0, 1.0);
     
     return _GlassCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Etiquetas de texto superiores
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -224,7 +207,6 @@ class _LevelProgressCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 8),
-          // Barra de progreso neón
           LinearProgressIndicator(
             value: progress,
             backgroundColor: Colors.white10,
@@ -254,11 +236,10 @@ class _StatsGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        // Usamos Expanded para que se dividan el espacio uniformemente
         Expanded(
           child: _StatItem(
             label: 'PRECISIÓN',
-            value: '${accuracy}%',
+            value: '$accuracy%', // Corregido: Sin llaves innecesarias
             color: AppColors.accuracy,
           ),
         ),
@@ -295,7 +276,6 @@ class _StatItem extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 16),
       child: Column(
         children: [
-          // Valor neón con monospace
           Text(
             value,
             style: TextStyle(
@@ -304,12 +284,12 @@ class _StatItem extends StatelessWidget {
               fontWeight: FontWeight.bold,
               fontFamily: 'monospace',
               shadows: [
-                Shadow(color: color.withOpacity(0.5), blurRadius: 10)
+                // Corregido: withValues
+                Shadow(color: color.withValues(alpha: 0.5), blurRadius: 10)
               ],
             ),
           ),
           const SizedBox(height: 4),
-          // Etiqueta secundaria
           Text(
             label,
             style: const TextStyle(color: AppColors.textMuted, fontSize: 8, letterSpacing: 1),
@@ -320,11 +300,6 @@ class _StatItem extends StatelessWidget {
   }
 }
 
-// =============================================================================
-// COMPONENTES BASE (GLASS DESIGN / HUD ELEMENTS)
-// =============================================================================
-
-// Tarjeta básica con efecto cristal
 class _GlassCard extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry? padding;
@@ -335,14 +310,13 @@ class _GlassCard extends StatelessWidget {
     return ClipRRect(
       borderRadius: BorderRadius.circular(15),
       child: BackdropFilter(
-        // Efecto de desenfoque de fondo (Blur)
         filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
         child: Container(
           padding: padding ?? const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: AppColors.surface, // Blanco traslúcido de tu config
+            color: AppColors.surface, 
             borderRadius: BorderRadius.circular(15),
-            border: Border.all(color: AppColors.border), // Borde traslúcido
+            border: Border.all(color: AppColors.border),
           ),
           child: child,
         ),
@@ -351,7 +325,6 @@ class _GlassCard extends StatelessWidget {
   }
 }
 
-// Pequeña etiqueta/chip con fondo neón traslúcido
 class _GlassChip extends StatelessWidget {
   final Widget child;
   const _GlassChip({required this.child});
@@ -361,7 +334,7 @@ class _GlassChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: AppColors.surfaceStrong, // Fondo más opaco
+        color: AppColors.surfaceStrong, 
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: AppColors.border),
       ),
@@ -370,7 +343,6 @@ class _GlassChip extends StatelessWidget {
   }
 }
 
-// Botón circular cristalino
 class _GlassButton extends StatelessWidget {
   final IconData icon;
   final VoidCallback onTap;
@@ -394,22 +366,16 @@ class _GlassButton extends StatelessWidget {
   }
 }
 
-// =============================================================================
-// PAINTERS Y FONDO (INTEGRADO AQUÍ PORQUE NO SE USA EN OTRO LADO)
-// =============================================================================
-
 class _GalaxyBackground extends StatelessWidget {
   final PlayerProfileController controller;
   const _GalaxyBackground({required this.controller});
 
   @override
   Widget build(BuildContext context) {
-    // Escucha las animaciones del controlador
     return AnimatedBuilder(
       animation: controller.pulseController,
       builder: (context, child) {
         return CustomPaint(
-          // Dibuja las órbitas y partículas basadas en el valor de animación
           painter: _OrbitParticlesPainter(controller.orbitAnimation.value),
           size: Size.infinite,
         );
@@ -419,22 +385,20 @@ class _GalaxyBackground extends StatelessWidget {
 }
 
 class _OrbitParticlesPainter extends CustomPainter {
-  final double t; // Valor de animación (de 0.0 a 1.0)
+  final double t; 
   _OrbitParticlesPainter(this.t);
 
   @override
   void paint(Canvas canvas, Size size) {
     final cx = size.width / 2;
-    final cy = size.height * 0.28; // Centrado en el avatar
+    final cy = size.height * 0.28; 
     final paint = Paint()..style = PaintingStyle.stroke..strokeWidth = 1;
 
-    // Órbitas traslúcidas de fondo
-    paint.color = AppColors.cyan.withOpacity(0.1);
+    // Corregido: withValues
+    paint.color = AppColors.cyan.withValues(alpha: 0.1);
     canvas.drawCircle(Offset(cx, cy), 100, paint);
     canvas.drawCircle(Offset(cx, cy), 130, paint);
 
-    // Partícula animada neón
-    // Calculamos ángulo basado en 't' para el movimiento circular
     final angle = t * 2 * math.pi;
     final px = cx + 130 * math.cos(angle);
     final py = cy + 130 * math.sin(angle);
@@ -444,7 +408,7 @@ class _OrbitParticlesPainter extends CustomPainter {
       4,
       Paint()
         ..color = AppColors.cyan
-        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 5), // Brillo neón
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 5),
     );
     canvas.drawCircle(Offset(px, py), 2, Paint()..color = Colors.white);
   }

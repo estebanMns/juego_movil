@@ -1,6 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import 'PlayerProfileScreen.dart';
+import 'player_profile_screen.dart';
 import 'levelMap.dart';
 import 'characters.dart' as local_characters;
 // 1. IMPORTANTE: Importa tu pantalla de configuración

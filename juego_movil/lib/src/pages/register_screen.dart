@@ -1,17 +1,31 @@
 import 'package:flutter/material.dart';
-import 'register_screen.dart';
 import 'login.dart';
 
-class Register extends StatelessWidget {
+class Register extends StatefulWidget {
   const Register({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final TextEditingController nameController = TextEditingController();
-    final TextEditingController emailController = TextEditingController();
-    final TextEditingController passwordController = TextEditingController();
-    final TextEditingController confirmPasswordController = TextEditingController();
+  State<Register> createState() => _RegisterState();
+}
 
+class _RegisterState extends State<Register> {
+  // Los controladores deben estar en el State y disponerse (dispose) correctamente
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController confirmPasswordController = TextEditingController();
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    emailController.dispose();
+    passwordController.dispose();
+    confirmPasswordController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
@@ -46,7 +60,6 @@ class Register extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const SizedBox(height: 20),
-                    // Logo o Título
                     const Column(
                       children: [
                         Icon(
@@ -94,107 +107,31 @@ class Register extends StatelessWidget {
                       ),
                       child: Column(
                         children: [
-                          // Campo Nombre
-                          TextField(
+                          _buildTextField(
                             controller: nameController,
-                            style: const TextStyle(color: Colors.white),
-                            decoration: InputDecoration(
-                              hintText: 'Nombre completo',
-                              hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
-                              prefixIcon: Icon(Icons.person_outline, color: Colors.white.withValues(alpha: 0.8)),
-                              filled: true,
-                              fillColor: Colors.white.withValues(alpha: 0.2),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.4)),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.4)),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: const BorderSide(color: Colors.purpleAccent, width: 2),
-                              ),
-                            ),
+                            hint: 'Nombre completo',
+                            icon: Icons.person_outline,
                           ),
                           const SizedBox(height: 16),
-                          // Campo Email
-                          TextField(
+                          _buildTextField(
                             controller: emailController,
+                            hint: 'Correo electrónico',
+                            icon: Icons.email_outlined,
                             keyboardType: TextInputType.emailAddress,
-                            style: const TextStyle(color: Colors.white),
-                            decoration: InputDecoration(
-                              hintText: 'Correo electrónico',
-                              hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
-                              prefixIcon: Icon(Icons.email_outlined, color: Colors.white.withValues(alpha: 0.8)),
-                              filled: true,
-                              fillColor: Colors.white.withValues(alpha: 0.2),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.4)),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.4)),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: const BorderSide(color: Colors.purpleAccent, width: 2),
-                              ),
-                            ),
                           ),
                           const SizedBox(height: 16),
-                          // Campo Contraseña
-                          TextField(
+                          _buildTextField(
                             controller: passwordController,
+                            hint: 'Contraseña',
+                            icon: Icons.lock_outline,
                             obscureText: true,
-                            style: const TextStyle(color: Colors.white),
-                            decoration: InputDecoration(
-                              hintText: 'Contraseña',
-                              hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
-                              prefixIcon: Icon(Icons.lock_outline, color: Colors.white.withValues(alpha: 0.8)),
-                              filled: true,
-                              fillColor: Colors.white.withValues(alpha: 0.2),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.4)),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.4)),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: const BorderSide(color: Colors.purpleAccent, width: 2),
-                              ),
-                            ),
                           ),
                           const SizedBox(height: 16),
-                          // Campo Confirmar Contraseña
-                          TextField(
+                          _buildTextField(
                             controller: confirmPasswordController,
+                            hint: 'Confirmar contraseña',
+                            icon: Icons.lock_outline,
                             obscureText: true,
-                            style: const TextStyle(color: Colors.white),
-                            decoration: InputDecoration(
-                              hintText: 'Confirmar contraseña',
-                              hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
-                              prefixIcon: Icon(Icons.lock_outline, color: Colors.white.withValues(alpha: 0.8)),
-                              filled: true,
-                              fillColor: Colors.white.withValues(alpha: 0.2),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.4)),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.4)),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: const BorderSide(color: Colors.purpleAccent, width: 2),
-                              ),
-                            ),
                           ),
                           const SizedBox(height: 24),
                           // Botón Register
@@ -234,7 +171,6 @@ class Register extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 24),
-                    // Texto de login
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -247,7 +183,6 @@ class Register extends StatelessWidget {
                         ),
                         TextButton(
                           onPressed: () {
-                            // Navegación directa a Login
                             Navigator.push(
                               context,
                               MaterialPageRoute(builder: (_) => const Login()),
@@ -275,69 +210,90 @@ class Register extends StatelessWidget {
     );
   }
 
+  // Widget auxiliar para no repetir código de los campos de texto
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String hint,
+    required IconData icon,
+    bool obscureText = false,
+    TextInputType keyboardType = TextInputType.text,
+  }) {
+    return TextField(
+      controller: controller,
+      obscureText: obscureText,
+      keyboardType: keyboardType,
+      style: const TextStyle(color: Colors.white),
+      decoration: InputDecoration(
+        hintText: hint,
+        hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
+        prefixIcon: Icon(icon, color: Colors.white.withValues(alpha: 0.8)),
+        filled: true,
+        fillColor: Colors.white.withValues(alpha: 0.2),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.4)),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.4)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Colors.purpleAccent, width: 2),
+        ),
+      ),
+    );
+  }
+
   void _handleRegister(
     BuildContext context,
     String name,
     String email,
     String password,
     String confirmPassword,
-  ) {
-    // ==========================================
-    // TODO: REEMPLAZAR CON TU BACKEND
-    // ==========================================
-    // Aquí iría la llamada a tu API de registro
-    // Ejemplo con Firebase Auth, Supabase, o tu propio backend
+  ) async { // Añadido async
     
     // Validaciones básicas
     if (name.isEmpty || email.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Por favor completa todos los campos'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      _showSnackBar(context, 'Por favor completa todos los campos', Colors.red);
       return;
     }
 
     if (password != confirmPassword) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Las contraseñas no coinciden'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      _showSnackBar(context, 'Las contraseñas no coinciden', Colors.red);
       return;
     }
 
     if (password.length < 6) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('La contraseña debe tener al menos 6 caracteres'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      _showSnackBar(context, 'La contraseña debe tener al menos 6 caracteres', Colors.red);
       return;
     }
 
-    // Simulación de registro exitoso (SOLO PARA PRUEBAS)
-    // En producción, esto se reemplaza con la llamada al backend
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('¡Registro exitoso! Por favor inicia sesión'),
-        backgroundColor: Colors.green,
-      ),
-    );
+    // cTODO REEMPLAZAR CON TU LLAMADA REAL AL BACKEND (Firebase/Supabase/API)
+    // Ejemplo: await authService.register(name, email, password);
+
+    _showSnackBar(context, '¡Registro exitoso! Por favor inicia sesión', Colors.green);
 
     // Regresar al login después de 2 segundos
-    Future.delayed(const Duration(seconds: 2), () {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const Login()),
-      );
-    });
+    await Future.delayed(const Duration(seconds: 2));
     
-    // ==========================================
-    // FIN DEL CÓDIGO DE PRUEBA
-    // ==========================================
+    // SOLUCIÓN AL ERROR DE ASYNC GAP: 
+    // Verificamos si el widget sigue "vivo" en la pantalla antes de navegar
+    if (!context.mounted) return;
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => const Login()),
+    );
+  }
+
+  void _showSnackBar(BuildContext context, String message, Color color) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: color,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 }

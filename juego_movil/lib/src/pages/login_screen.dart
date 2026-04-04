@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:juego_movil/src/pages/PlayerProfileScreen.dart';
-import 'package:juego_movil/src/pages/settings_screen.dart';
-import './home.dart';
-import 'register_screen.dart';
+import 'register_screen.dart'; 
 import 'lobby.dart';
 
 class Login extends StatelessWidget {
@@ -25,7 +22,7 @@ class Login extends StatelessWidget {
               ),
             ),
           ),
-          // Gradiente overlay oscuro para mejor legibilidad
+          // Gradiente overlay
           Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -47,14 +44,9 @@ class Login extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const SizedBox(height: 40),
-                    // Logo o Título
                     const Column(
                       children: [
-                        Icon(
-                          Icons.rocket_launch,
-                          size: 80,
-                          color: Colors.white,
-                        ),
+                        Icon(Icons.rocket_launch, size: 80, color: Colors.white),
                         SizedBox(height: 16),
                         Text(
                           'El robo de Molly',
@@ -68,10 +60,7 @@ class Login extends StatelessWidget {
                         SizedBox(height: 8),
                         Text(
                           'Bienvenido de vuelta',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.white70,
-                          ),
+                          style: TextStyle(fontSize: 16, color: Colors.white70),
                         ),
                       ],
                     ),
@@ -82,9 +71,7 @@ class Login extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: Colors.white.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.3),
-                        ),
+                        border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black.withValues(alpha: 0.3),
@@ -95,101 +82,45 @@ class Login extends StatelessWidget {
                       ),
                       child: Column(
                         children: [
-                          // Campo Email
                           TextField(
                             controller: emailController,
                             style: const TextStyle(color: Colors.white),
-                            decoration: InputDecoration(
-                              hintText: 'Correo electrónico',
-                              hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
-                              prefixIcon: Icon(Icons.email_outlined, color: Colors.white.withValues(alpha: 0.8)),
-                              filled: true,
-                              fillColor: Colors.white.withValues(alpha: 0.2),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.4)),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.4)),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: const BorderSide(color: Colors.purpleAccent, width: 2),
-                              ),
-                            ),
+                            decoration: _inputStyle('Correo electrónico', Icons.email_outlined),
                           ),
                           const SizedBox(height: 16),
-                          // Campo Contraseña
                           TextField(
                             controller: passwordController,
                             obscureText: true,
                             style: const TextStyle(color: Colors.white),
-                            decoration: InputDecoration(
-                              hintText: 'Contraseña',
-                              hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
-                              prefixIcon: Icon(Icons.lock_outline, color: Colors.white.withValues(alpha: 0.8)),
-                              filled: true,
-                              fillColor: Colors.white.withValues(alpha: 0.2),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.4)),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.4)),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: const BorderSide(color: Colors.purpleAccent, width: 2),
-                              ),
-                            ),
+                            decoration: _inputStyle('Contraseña', Icons.lock_outline),
                           ),
                           const SizedBox(height: 8),
-                          // Olvidé contraseña
                           Align(
                             alignment: Alignment.centerRight,
                             child: TextButton(
-                              onPressed: () {
-                              },
+                              onPressed: () {},
                               child: const Text(
                                 '¿Olvidaste tu contraseña?',
-                                style: TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: 12,
-                                ),
+                                style: TextStyle(color: Colors.white70, fontSize: 12),
                               ),
                             ),
                           ),
                           const SizedBox(height: 24),
-                          // Botón Login
                           SizedBox(
                             width: double.infinity,
                             height: 50,
                             child: ElevatedButton(
-                              onPressed: () {
-                                _handleLogin(
-                                  context,
-                                  emailController.text,
-                                  passwordController.text,
-                                );
-                              },
+                              onPressed: () => _handleLogin(context, emailController.text, passwordController.text),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFF9C27B0),
                                 foregroundColor: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                 elevation: 8,
                                 shadowColor: const Color(0xFF9C27B0).withValues(alpha: 0.5),
                               ),
                               child: const Text(
                                 'INICIAR SESIÓN',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: 1.5,
-                                ),
+                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 1.5),
                               ),
                             ),
                           ),
@@ -203,17 +134,14 @@ class Login extends StatelessWidget {
                       children: [
                         const Text(
                           '¿No tienes cuenta?',
-                          style: TextStyle(
-                            color: Colors.white70,
-                            fontSize: 14,
-                          ),
+                          style: TextStyle(color: Colors.white70, fontSize: 14),
                         ),
                         TextButton(
                           onPressed: () {
-                            // Navegación directa a Register
+                            // Navegación corregida a la clase 'Register'
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (_) => const RegisterScreen()),
+                              MaterialPageRoute(builder: (_) => const Register()),
                             );
                           },
                           child: const Text(
@@ -238,47 +166,45 @@ class Login extends StatelessWidget {
     );
   }
 
-  void _handleLogin(BuildContext context, String email, String password) {
-    // ==========================================
-    // TODO: REEMPLAZAR CON TU BACKEND
-    // ==========================================
-    // Aquí iría la llamada a tu API de autenticación
-    // Ejemplo con Firebase Auth, Supabase, o tu propio backend
-    
-    // Credenciales de prueba para desarrollo (ELIMINAR EN PRODUCCIÓN)
-    const String testEmail = 'test@test.com';
-    const String testPassword = '123456';
+  InputDecoration _inputStyle(String hint, IconData icon) {
+    return InputDecoration(
+      hintText: hint,
+      hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
+      prefixIcon: Icon(icon, color: Colors.white.withValues(alpha: 0.8)),
+      filled: true,
+      fillColor: Colors.white.withValues(alpha: 0.2),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.4)),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.4)),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: Colors.purpleAccent, width: 2),
+      ),
+    );
+  }
 
-    // Validación de campos vacíos
+  void _handleLogin(BuildContext context, String email, String password) {
     if (email.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Por favor completa todos los campos'),
-          backgroundColor: Colors.red,
-        ),
+        const SnackBar(content: Text('Por favor completa todos los campos'), backgroundColor: Colors.red),
       );
       return;
     }
 
-    // Verificación de credenciales (SOLO PARA PRUEBAS)
-    if (email == testEmail && password == testPassword) {
-      // Login exitoso - Navegar al lobby
+    if (email == 'test@test.com' && password == '123456') {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const Lobby()),
       );
     } else {
-      // Credenciales incorrectas
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Email o contraseña incorrectos'),
-          backgroundColor: Colors.red,
-        ),
+        const SnackBar(content: Text('Email o contraseña incorrectos'), backgroundColor: Colors.red),
       );
     }
-    
-    // ==========================================
-    // FIN DEL CÓDIGO DE PRUEBA
-    // ==========================================
   }
 }

@@ -1,22 +1,24 @@
+// Archivo: lib/src/app.dart
+
 import 'package:flutter/material.dart';
-import 'package:juego_movil/src/pages/PlayerProfileScreen.dart';
-import 'package:juego_movil/src/pages/settings_screen.dart';
 import './pages/home.dart';
 import 'pages/lobby.dart';
 
+// Clase de prueba o utilidad
 class App extends StatelessWidget {
   const App({super.key});
 
   @override
   Widget build(BuildContext context){
-    return MaterialApp(
+    return const MaterialApp(
       home: Center(
-        child: SettingsScreen(),
+        child: Text('App Principal'), // Cambiado porque SettingsScreen no se usa aquí
       ),
     );
   }
 }
 
+// ESTA ES TU CLASE PRINCIPAL (La que arranca el juego)
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -27,12 +29,14 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.purple,
+        useMaterial3: true, // Recomendado para las versiones nuevas de Flutter
       ),
       home: const Home(),
     );
   }
 }   
 
+// Clase para el Lobby
 class MyLobbyApp extends StatelessWidget {
   const MyLobbyApp({super.key});
 

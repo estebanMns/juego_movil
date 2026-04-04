@@ -36,7 +36,7 @@ class Characters extends StatelessWidget {
     return Scaffold(
       body: Stack(
         children: [
-          // Fondo galáctico (la imagen que me mostraste)
+          // Fondo galáctico
           Container(
             decoration: const BoxDecoration(
               image: DecorationImage(
@@ -53,8 +53,9 @@ class Characters extends StatelessWidget {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  Colors.black.withOpacity(0.35),
-                  Colors.black.withOpacity(0.65),
+                  // Corregido: withValues
+                  Colors.black.withValues(alpha: 0.35),
+                  Colors.black.withValues(alpha: 0.65),
                 ],
               ),
             ),
@@ -76,7 +77,8 @@ class Characters extends StatelessWidget {
                       shadows: [
                         Shadow(
                           blurRadius: 15,
-                          color: const Color(0xFF00E5FF).withOpacity(0.8),
+                          // Corregido: withValues
+                          color: const Color(0xFF00E5FF).withValues(alpha: 0.8),
                           offset: const Offset(0, 0),
                         ),
                         const Shadow(
@@ -96,7 +98,7 @@ class Characters extends StatelessWidget {
                     child: GridView.builder(
                       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2,
-                        childAspectRatio: 0.78,   // Más espacio para la foto
+                        childAspectRatio: 0.78,   
                         crossAxisSpacing: 14,
                         mainAxisSpacing: 16,
                       ),
@@ -106,7 +108,8 @@ class Characters extends StatelessWidget {
 
                         return Container(
                           decoration: BoxDecoration(
-                            color: const Color(0xFF0F1B2E).withOpacity(0.92),
+                            // Corregido: withValues
+                            color: const Color(0xFF0F1B2E).withValues(alpha: 0.92),
                             borderRadius: BorderRadius.circular(20),
                             border: Border.all(
                               color: const Color(0xFF00E5FF),
@@ -114,12 +117,14 @@ class Characters extends StatelessWidget {
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: const Color(0xFF00E5FF).withOpacity(0.4),
+                                // Corregido: withValues
+                                color: const Color(0xFF00E5FF).withValues(alpha: 0.4),
                                 blurRadius: 18,
                                 spreadRadius: 1,
                               ),
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.6),
+                                // Corregido: withValues
+                                color: Colors.black.withValues(alpha: 0.6),
                                 blurRadius: 12,
                                 offset: const Offset(0, 8),
                               ),
@@ -130,7 +135,7 @@ class Characters extends StatelessWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
-                                // Foto más grande y visible
+                                // Foto
                                 Expanded(
                                   flex: 7,
                                   child: Stack(
@@ -149,7 +154,7 @@ class Characters extends StatelessWidget {
                                           );
                                         },
                                       ),
-                                      // Brillo sutil en la parte superior de la foto
+                                      // Brillo sutil
                                       Positioned(
                                         top: 0,
                                         left: 0,
@@ -168,14 +173,15 @@ class Characters extends StatelessWidget {
                                           ),
                                         ),
                                       ),
-                                      // Estrella dorada en la esquina
+                                      // Estrella dorada
                                       Positioned(
                                         top: 12,
                                         right: 12,
                                         child: Container(
                                           padding: const EdgeInsets.all(7),
                                           decoration: BoxDecoration(
-                                            color: Colors.black.withOpacity(0.65),
+                                            // Corregido: withValues
+                                            color: Colors.black.withValues(alpha: 0.65),
                                             shape: BoxShape.circle,
                                             border: Border.all(
                                               color: const Color(0xFFFFD700),
@@ -234,7 +240,7 @@ class Characters extends StatelessWidget {
             ),
           ),
 
-          // Flecha para volver atrás
+          // Botón volver
           Positioned(
             top: 18,
             left: 12,
