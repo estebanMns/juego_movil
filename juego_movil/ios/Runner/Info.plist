@@ -45,5 +45,7 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+        <string>Necesitamos la cámara para recolectar objetos espaciales.</string>
 </dict>
 </plist>

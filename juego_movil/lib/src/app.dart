@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:juego_movil/src/pages/PlayerProfileScreen.dart';
-import 'package:juego_movil/src/pages/SettingsScreen.dart';
+import 'package:juego_movil/src/pages/settings_screen.dart';
 import './pages/home.dart';
 import 'pages/lobby.dart';
 
