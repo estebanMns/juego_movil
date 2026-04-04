@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'register.dart';
+import 'package:juego_movil/src/pages/PlayerProfileScreen.dart';
+import 'package:juego_movil/src/pages/settings_screen.dart';
+import './home.dart';
+import 'register_screen.dart';
 import 'lobby.dart';
 
 class Login extends StatelessWidget {
@@ -148,7 +151,6 @@ class Login extends StatelessWidget {
                             alignment: Alignment.centerRight,
                             child: TextButton(
                               onPressed: () {
-                                // TODO: Implementar recuperación de contraseña
                               },
                               child: const Text(
                                 '¿Olvidaste tu contraseña?',
@@ -211,7 +213,7 @@ class Login extends StatelessWidget {
                             // Navegación directa a Register
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (_) => const Register()),
+                              MaterialPageRoute(builder: (_) => const RegisterScreen()),
                             );
                           },
                           child: const Text(

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:math';
 
 // ============================================================
 // MODELO DE DATOS
@@ -40,13 +39,12 @@ class _LevelmapState extends State<Levelmap> with TickerProviderStateMixin {
   late List<LevelData> levels;
   final ScrollController _scrollController = ScrollController();
 
-  // Animaciones
   late AnimationController _characterController;
   late Animation<double> _characterBounce;
   late AnimationController _glowController;
   late Animation<double> _glowAnim;
 
-  int _currentLevelIndex = 0; // Ahora empieza en el nivel 0
+  int _currentLevelIndex = 0; 
 
   @override
   void initState() {
@@ -71,7 +69,6 @@ class _LevelmapState extends State<Levelmap> with TickerProviderStateMixin {
       CurvedAnimation(parent: _glowController, curve: Curves.easeInOut),
     );
 
-    // Scroll automático al nivel tutorial (nivel 0)
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _scrollToCurrentLevel();
     });
@@ -99,26 +96,19 @@ class _LevelmapState extends State<Levelmap> with TickerProviderStateMixin {
   }
 
   void _initializeLevels() {
-    // Creamos 21 niveles: 0 (tutorial) + 1 al 20
     levels = List.generate(21, (index) {
       LevelStatus status;
-      
       if (index == 0) {
-        // Nivel 0: Tutorial (disponible pero diferente)
         status = LevelStatus.tutorial;
       } else if (index == 1) {
-        // Nivel 1: Completado
         status = LevelStatus.completed;
       } else if (index == 2) {
-        // Nivel 2: Disponible (azul)
         status = LevelStatus.available;
       } else {
-        // Nivel 3-20: Bloqueados
         status = LevelStatus.locked;
       }
       
-      // Calcular fila y columna para distribución en grid
-      final row = (index / 3).floor(); // 3 columnas
+      final row = (index / 3).floor(); 
       final col = index % 3;
       
       return LevelData(
@@ -130,38 +120,24 @@ class _LevelmapState extends State<Levelmap> with TickerProviderStateMixin {
         col: col,
       );
     });
-
-    _currentLevelIndex = 0; // Personaje en nivel tutorial
+    _currentLevelIndex = 0; 
   }
 
-  // ============================================================
-  // CALCULAR POSICIÓN DE CADA NIVEL
-  // ============================================================
-
   Offset _getLevelPosition(LevelData level, double screenWidth) {
-    final double horizontalPadding = screenWidth * 0.12; // 12% a cada lado
+    final double horizontalPadding = screenWidth * 0.12; 
     final double availableWidth = screenWidth - (horizontalPadding * 2);
     final double columnWidth = availableWidth / 3;
     
-    // Posición X con patrón zigzag
     double xPos;
     if (level.row.isEven) {
-      // Fila par: izquierda a derecha
       xPos = horizontalPadding + (level.col * columnWidth) + (columnWidth / 2);
     } else {
-      // Fila impar: derecha a izquierda
       xPos = horizontalPadding + ((2 - level.col) * columnWidth) + (columnWidth / 2);
     }
     
-    // Posición Y: espaciado vertical generoso
     final double yPos = 200 + (level.row * 140.0);
-    
     return Offset(xPos, yPos);
   }
-
-  // ============================================================
-  // BUILD PRINCIPAL
-  // ============================================================
 
   @override
   Widget build(BuildContext context) {
@@ -170,7 +146,6 @@ class _LevelmapState extends State<Levelmap> with TickerProviderStateMixin {
     return Scaffold(
       body: Stack(
         children: [
-          // IMAGEN DE FONDO
           Container(
             decoration: const BoxDecoration(
               image: DecorationImage(
@@ -179,29 +154,16 @@ class _LevelmapState extends State<Levelmap> with TickerProviderStateMixin {
               ),
             ),
           ),
-          
-          // Overlay oscuro
-          Container(color: Colors.black.withOpacity(0.25)),
-
-          // SCROLL VIEW CON LOS NIVELES
+          Container(color: Colors.black.withValues(alpha: 0.25)),
           _buildScrollView(size),
-
-          // Header fijo
           _buildHeader(),
-
-          // Botón regresar
           _buildBackButton(),
         ],
       ),
     );
   }
 
-  // ============================================================
-  // SCROLL VIEW
-  // ============================================================
-
   Widget _buildScrollView(Size screenSize) {
-    // Calcular altura total necesaria
     final totalHeight = 200 + ((levels.length / 3).ceil() * 140.0) + 200;
 
     return SingleChildScrollView(
@@ -213,23 +175,21 @@ class _LevelmapState extends State<Levelmap> with TickerProviderStateMixin {
         child: Stack(
           clipBehavior: Clip.none,
           children: [
-            // Camino entre nodos
+            // SOLUCIÓN AL ERROR: Pasamos directamente el Painter, no un widget CustomPaint
             CustomPaint(
               size: Size(screenSize.width, totalHeight),
-              painter: _PathPainter(
+              painter: _PathCustomPainter(
                 levels: levels,
                 getLevelPosition: _getLevelPosition,
                 screenWidth: screenSize.width,
               ),
             ),
 
-            // Niveles
             ...levels.map((level) {
               final position = _getLevelPosition(level, screenSize.width);
               return _buildLevelNode(level, position);
-            }).toList(),
+            }),
 
-            // Personaje
             if (_currentLevelIndex >= 0)
               _buildCharacter(
                 _getLevelPosition(levels[_currentLevelIndex], screenSize.width),
@@ -287,7 +247,7 @@ class _LevelmapState extends State<Levelmap> with TickerProviderStateMixin {
               border: Border.all(color: Colors.cyanAccent, width: 3.5),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.cyanAccent.withOpacity(0.7),
+                  color: Colors.cyanAccent.withValues(alpha: 0.7),
                   blurRadius: 20,
                   spreadRadius: 3,
                 ),
@@ -307,11 +267,11 @@ class _LevelmapState extends State<Levelmap> with TickerProviderStateMixin {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
             decoration: BoxDecoration(
-              color: Colors.cyanAccent.withOpacity(0.95),
+              color: Colors.cyanAccent.withValues(alpha: 0.95),
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.cyanAccent.withOpacity(0.5),
+                  color: Colors.cyanAccent.withValues(alpha: 0.5),
                   blurRadius: 8,
                 ),
               ],
@@ -330,10 +290,6 @@ class _LevelmapState extends State<Levelmap> with TickerProviderStateMixin {
     );
   }
 
-  // ============================================================
-  // HEADER Y BOTONES
-  // ============================================================
-
   Widget _buildHeader() {
     return Positioned(
       top: 0,
@@ -349,7 +305,7 @@ class _LevelmapState extends State<Levelmap> with TickerProviderStateMixin {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Colors.black.withOpacity(0.7),
+              Colors.black.withValues(alpha: 0.7),
               Colors.transparent,
             ],
           ),
@@ -358,15 +314,15 @@ class _LevelmapState extends State<Levelmap> with TickerProviderStateMixin {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 14),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.12),
+              color: Colors.white.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(30),
               border: Border.all(
-                color: Colors.purpleAccent.withOpacity(0.6),
+                color: Colors.purpleAccent.withValues(alpha: 0.6),
                 width: 2.5,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.purpleAccent.withOpacity(0.4),
+                  color: Colors.purpleAccent.withValues(alpha: 0.4),
                   blurRadius: 20,
                   spreadRadius: 2,
                 ),
@@ -380,10 +336,7 @@ class _LevelmapState extends State<Levelmap> with TickerProviderStateMixin {
                 fontWeight: FontWeight.bold,
                 letterSpacing: 1.3,
                 shadows: [
-                  Shadow(
-                    color: Colors.purpleAccent,
-                    blurRadius: 15,
-                  ),
+                  Shadow(color: Colors.purpleAccent, blurRadius: 15),
                 ],
               ),
             ),
@@ -403,12 +356,12 @@ class _LevelmapState extends State<Levelmap> with TickerProviderStateMixin {
           width: 44,
           height: 44,
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.15),
+            color: Colors.white.withValues(alpha: 0.15),
             shape: BoxShape.circle,
-            border: Border.all(color: Colors.white.withOpacity(0.4)),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.4)),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.4),
+                color: Colors.black.withValues(alpha: 0.4),
                 blurRadius: 10,
               ),
             ],
@@ -427,8 +380,8 @@ class _LevelmapState extends State<Levelmap> with TickerProviderStateMixin {
     if (level.status == LevelStatus.locked) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Row(
-            children: const [
+          content: const Row(
+            children: [
               Icon(Icons.lock_outline, color: Colors.white),
               SizedBox(width: 10),
               Text('Completa el nivel anterior para desbloquear'),
@@ -452,6 +405,61 @@ class _LevelmapState extends State<Levelmap> with TickerProviderStateMixin {
 }
 
 // ============================================================
+// CLASE CORREGIDA: CUSTOM PAINTER
+// ============================================================
+
+class _PathCustomPainter extends CustomPainter {
+  final List<LevelData> levels;
+  final Offset Function(LevelData, double) getLevelPosition;
+  final double screenWidth;
+
+  _PathCustomPainter({
+    required this.levels,
+    required this.getLevelPosition,
+    required this.screenWidth,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.white.withValues(alpha: 0.3)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 4.0
+      ..strokeCap = StrokeCap.round;
+
+    final dashPaint = Paint()
+      ..color = Colors.white.withValues(alpha: 0.15)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.0;
+
+    for (int i = 0; i < levels.length - 1; i++) {
+      final p1 = getLevelPosition(levels[i], screenWidth);
+      final p2 = getLevelPosition(levels[i + 1], screenWidth);
+      
+      final isLocked = levels[i+1].status == LevelStatus.locked;
+      final activePaint = isLocked ? dashPaint : paint;
+
+      final path = Path();
+      path.moveTo(p1.dx, p1.dy);
+      
+      final controlPoint1 = Offset(p1.dx, p1.dy + (p2.dy - p1.dy) / 2);
+      final controlPoint2 = Offset(p2.dx, p2.dy - (p2.dy - p1.dy) / 2);
+      
+      path.cubicTo(
+        controlPoint1.dx, controlPoint1.dy,
+        controlPoint2.dx, controlPoint2.dy,
+        p2.dx, p2.dy,
+      );
+
+      canvas.drawPath(path, activePaint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+// ============================================================
 // WIDGET: NODO DE NIVEL
 // ============================================================
 
@@ -470,7 +478,7 @@ class _LevelNode extends StatelessWidget {
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: glowAnim,
-      builder: (_, __) {
+      builder: (_, _) {
         final glow = (level.status == LevelStatus.available || 
                       level.status == LevelStatus.tutorial) 
             ? glowAnim.value 
@@ -506,7 +514,7 @@ class _LevelNode extends StatelessWidget {
       case LevelStatus.locked:
         return Icon(
           Icons.lock_rounded,
-          color: Colors.white.withOpacity(0.6),
+          color: Colors.white.withValues(alpha: 0.6),
           size: size * 0.42,
         );
       case LevelStatus.completed:
@@ -519,20 +527,9 @@ class _LevelNode extends StatelessWidget {
         return const Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.school_rounded,
-              color: Colors.white,
-              size: 28,
-            ),
+            Icon(Icons.school_rounded, color: Colors.white, size: 28),
             SizedBox(height: 2),
-            Text(
-              '0',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            Text('0', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
           ],
         );
       case LevelStatus.available:
@@ -542,9 +539,7 @@ class _LevelNode extends StatelessWidget {
             color: Colors.white,
             fontSize: size * 0.42,
             fontWeight: FontWeight.bold,
-            shadows: [
-              Shadow(color: Colors.black45, blurRadius: 4),
-            ],
+            shadows: const [Shadow(color: Colors.black45, blurRadius: 4)],
           ),
         );
     }
@@ -562,43 +557,28 @@ class _LevelNode extends StatelessWidget {
               BoxShadow(color: Colors.red, blurRadius: 10, spreadRadius: 2),
             ],
           ),
-          child: const Icon(
-            Icons.emoji_events_rounded,
-            color: Colors.amber,
-            size: 16,
-          ),
+          child: const Icon(Icons.emoji_events_rounded, color: Colors.amber, size: 16),
         ),
       );
 
   Gradient _gradient() {
     switch (level.status) {
       case LevelStatus.locked:
-        return const LinearGradient(
-          colors: [Color(0xFF4a4a5a), Color(0xFF2a2a3a)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        );
+        return const LinearGradient(colors: [Color(0xFF4a4a5a), Color(0xFF2a2a3a)]);
       case LevelStatus.tutorial:
-        // Nivel 0: Morado brillante
-        return const LinearGradient(
-          colors: [Color(0xFFB794F6), Color(0xFF805AD5)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        );
+        return const LinearGradient(colors: [Color(0xFFB794F6), Color(0xFF805AD5)]);
       case LevelStatus.available:
-        // Nivel 2+: Azul brillante
-        return const LinearGradient(
-          colors: [Color(0xFF00d2ff), Color(0xFF0070f3)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        );
+        return const LinearGradient(colors: [Color(0xFF00d2ff), Color(0xFF0070f3)]);
       case LevelStatus.completed:
-        return const LinearGradient(
-          colors: [Color(0xFFf093fb), Color(0xFFf5576c)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        );
+        return const LinearGradient(colors: [Color(0xFFf093fb), Color(0xFFf5576c)]);
     }
+  }
+
+  Color _borderColor() {
+    if (level.status == LevelStatus.available || level.status == LevelStatus.tutorial) {
+      return Colors.white;
+    }
+    return Colors.white.withValues(alpha: 0.3);
   }
 
   List<BoxShadow> _shadow(double glow) {
@@ -606,136 +586,28 @@ class _LevelNode extends StatelessWidget {
       case LevelStatus.locked:
         return [
           BoxShadow(
-            color: Colors.black.withOpacity(0.4),
+            color: Colors.black.withValues(alpha: 0.4),
             blurRadius: 12,
             offset: const Offset(0, 5),
           ),
         ];
       case LevelStatus.tutorial:
-        // Sombra morada para el tutorial
-        return [
-          BoxShadow(
-            color: const Color(0xFF805AD5).withOpacity(0.7 * glow),
-            blurRadius: 30 * glow,
-            spreadRadius: 5 * glow,
-          ),
-        ];
       case LevelStatus.available:
         return [
           BoxShadow(
-            color: Colors.cyanAccent.withOpacity(0.7 * glow),
-            blurRadius: 30 * glow,
-            spreadRadius: 5 * glow,
+            color: (level.status == LevelStatus.tutorial ? Colors.purpleAccent : Colors.cyanAccent)
+                .withValues(alpha: 0.6 * glow),
+            blurRadius: 15 * glow,
+            spreadRadius: 2 * glow,
           ),
         ];
       case LevelStatus.completed:
         return [
           BoxShadow(
-            color: Colors.pinkAccent.withOpacity(0.5),
-            blurRadius: 18,
-            spreadRadius: 3,
+            color: Colors.pinkAccent.withValues(alpha: 0.3),
+            blurRadius: 10,
           ),
         ];
     }
   }
-
-  Color _borderColor() {
-    switch (level.status) {
-      case LevelStatus.locked:
-        return Colors.white24;
-      case LevelStatus.tutorial:
-        return const Color(0xFFD6BCFA); // Morado claro
-      case LevelStatus.available:
-        return Colors.cyanAccent;
-      case LevelStatus.completed:
-        return Colors.amber[300]!;
-    }
-  }
-}
-
-// ============================================================
-// CUSTOM PAINTER: CAMINO
-// ============================================================
-
-class _PathPainter extends CustomPainter {
-  final List<LevelData> levels;
-  final Function(LevelData, double) getLevelPosition;
-  final double screenWidth;
-
-  const _PathPainter({
-    required this.levels,
-    required this.getLevelPosition,
-    required this.screenWidth,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    if (levels.length < 2) return;
-
-    final paintCompleted = Paint()
-      ..color = Colors.amber.withOpacity(0.6)
-      ..strokeWidth = 5
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round;
-
-    final paintLocked = Paint()
-      ..color = Colors.white.withOpacity(0.2)
-      ..strokeWidth = 3.5
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round;
-
-    for (int i = 0; i < levels.length - 1; i++) {
-      final currentLevel = levels[i];
-      final nextLevel = levels[i + 1];
-
-      final p0 = getLevelPosition(currentLevel, screenWidth);
-      final p1 = getLevelPosition(nextLevel, screenWidth);
-
-      // Crear camino curvo
-      final path = Path()..moveTo(p0.dx, p0.dy);
-      
-      // Punto de control para curva suave
-      final cp = Offset(
-        (p0.dx + p1.dx) / 2,
-        (p0.dy + p1.dy) / 2 + 20,
-      );
-      
-      path.quadraticBezierTo(cp.dx, cp.dy, p1.dx, p1.dy);
-
-      canvas.drawPath(
-        path,
-        currentLevel.status == LevelStatus.completed || 
-        currentLevel.status == LevelStatus.tutorial
-            ? paintCompleted 
-            : paintLocked,
-      );
-    }
-
-    // Partículas brillantes en el camino
-    _drawParticles(canvas);
-  }
-
-  void _drawParticles(Canvas canvas) {
-    final rand = Random(123);
-    final paint = Paint()
-      ..color = Colors.white.withOpacity(0.4)
-      ..style = PaintingStyle.fill;
-
-    for (int i = 0; i < levels.length - 1; i++) {
-      final p0 = getLevelPosition(levels[i], screenWidth);
-      final p1 = getLevelPosition(levels[i + 1], screenWidth);
-      
-      for (int j = 0; j < 4; j++) {
-        final t = rand.nextDouble();
-        final x = p0.dx + (p1.dx - p0.dx) * t + (rand.nextDouble() - 0.5) * 40;
-        final y = p0.dy + (p1.dy - p0.dy) * t + (rand.nextDouble() - 0.5) * 20;
-        final radius = rand.nextDouble() * 4 + 2;
-        canvas.drawCircle(Offset(x, y), radius, paint);
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _PathPainter old) =>
-      old.levels != levels || old.screenWidth != screenWidth;
 }
