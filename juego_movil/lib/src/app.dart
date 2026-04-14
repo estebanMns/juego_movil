@@ -1,8 +1,8 @@
 // Archivo: lib/src/app.dart
 
 import 'package:flutter/material.dart';
-import './pages/home.dart';
-import 'pages/lobby.dart';
+import './pages/home_screen.dart';
+import 'pages/lobby_screen.dart';
 
 // Clase de prueba o utilidad
 class App extends StatelessWidget {

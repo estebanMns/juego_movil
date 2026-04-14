@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'register_screen.dart'; 
-import 'lobby.dart';
+import 'lobby_screen.dart';
 
 class Login extends StatelessWidget {
   const Login({super.key});
