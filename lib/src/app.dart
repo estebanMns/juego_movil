@@ -1,24 +1,10 @@
-// Archivo: lib/src/app.dart
-
 import 'package:flutter/material.dart';
-import './pages/home_screen.dart';
+import 'pages/home_screen.dart';
 import 'pages/lobby_screen.dart';
+import 'pages/level_map.dart';
+import 'pages/level_detail.dart';
+import 'pages/game_screen.dart'; // IMPORTANTE: Asegúrate de que este archivo exista
 
-// Clase de prueba o utilidad
-class App extends StatelessWidget {
-  const App({super.key});
-
-  @override
-  Widget build(BuildContext context){
-    return const MaterialApp(
-      home: Center(
-        child: Text('App Principal'), // Cambiado porque SettingsScreen no se usa aquí
-      ),
-    );
-  }
-}
-
-// ESTA ES TU CLASE PRINCIPAL (La que arranca el juego)
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -29,26 +15,25 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.purple,
-        useMaterial3: true, // Recomendado para las versiones nuevas de Flutter
+        useMaterial3: true,
+        brightness: Brightness.dark,
       ),
-      home: const Home(),
-    );
-  }
-}   
+      
+      // La pantalla con la que inicia la app
+      initialRoute: '/home', 
 
-// Clase para el Lobby
-class MyLobbyApp extends StatelessWidget {
-  const MyLobbyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'El Robo de Molly - Lobby',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.purple,
-      ),
-      home: const Lobby(),
+      routes: {
+        '/home': (context) => const Home(),
+        '/lobby': (context) => const Lobby(),
+        '/level-map': (context) => const Levelmap(),
+        '/level-detail': (context) => const LevelDetailScreen(),
+        '/game-screen': (context) => const GameScreen(), // <-- ESTA ES LA LÍNEA QUE ARREGLA TU ERROR
+      },
+      
+      // Esto ayuda por si hay errores de navegación
+      onUnknownRoute: (settings) {
+        return MaterialPageRoute(builder: (context) => const Home());
+      },
     );
   }
 }
