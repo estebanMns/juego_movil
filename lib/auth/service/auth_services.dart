@@ -5,10 +5,11 @@ class AuthServices {
   final SupabaseClient _client = Supabase.instance.client;
 
   // metodo para el registro
-  Future<void> signUp(String email, String password) async {
+  Future<void> signUpWithEmailPassword(String email, String password, String name) async {
     final response = await _client.auth.signUp(
       email: email,
-      password: password
+      password: password,
+      data: {"name":name}
       );
 
       if (response.user == null){

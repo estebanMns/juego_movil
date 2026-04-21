@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:juego_movil/auth/service/auth_services.dart';
 import 'login_screen.dart';
 
 class Register extends StatefulWidget {
@@ -269,13 +270,30 @@ class _RegisterState extends State<Register> {
       return;
     }
 
-    // cTODO REEMPLAZAR CON TU LLAMADA REAL AL BACKEND (Firebase/Supabase/API)
-    // Ejemplo: await authService.register(name, email, password);
+    final authService = AuthServices();
 
-    _showSnackBar(context, '¡Registro exitoso! Por favor inicia sesión', Colors.green);
+    try {
+    // Intentamos registrar al usuario en Supabase
+    await authService.signUpWithEmailPassword(email, password, name);
+
+    // Si todo sale bien:
+    if (!context.mounted) return;
+    _showSnackBar(context, '¡Registro exitoso! Inicia sesion por favor', Colors.green);
+    
+    // Regresar al login o dejar que AuthGate te mande al Home
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => const Login()),
+    );
+
+  } catch (e) {
+    // Si hay error (ej: el email ya está registrado)
+    if (!context.mounted) return;
+    _showSnackBar(context, 'Error al registrar: ${e.toString()}', Colors.red);
+  }
 
     // Regresar al login después de 2 segundos
-    await Future.delayed(const Duration(seconds: 2));
+    await Future.delayed(const Duration(seconds: 1));
     
     // SOLUCIÓN AL ERROR DE ASYNC GAP: 
     // Verificamos si el widget sigue "vivo" en la pantalla antes de navegar
