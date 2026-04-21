@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 import 'player_profile_screen.dart';
 import 'level_map.dart';
 import 'characters_screen.dart' as local_characters;
-// 1. IMPORTANTE: Importa tu pantalla de configuración
 import 'settings_screen.dart'; 
+import 'shop_screen.dart';
+import 'rewards_screen.dart'; // 1. IMPORTAMOS LA NUEVA PANTALLA
 
 class Lobby extends StatefulWidget {
   const Lobby({super.key});
@@ -77,11 +78,25 @@ class _LobbyState extends State<Lobby> with TickerProviderStateMixin {
     );
   }
 
-  // 2. NUEVA FUNCIÓN: Para ir a Settings
   void _navigateToSettings() {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => const SettingsScreen())
+    );
+  }
+
+  void _navigateToShop() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const ShopScreen())
+    );
+  }
+
+  // 2. NUEVA FUNCIÓN: Navegar a Recompensas
+  void _navigateToRewards() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const RewardsScreen())
     );
   }
 
@@ -95,7 +110,7 @@ class _LobbyState extends State<Lobby> with TickerProviderStateMixin {
           // Background
           Positioned.fill(
             child: Image.asset(
-              'assets/images/fondo_espacio.jpg',
+              'assets/images/FondoLobby.jpg',
               fit: BoxFit.cover,
             ),
           ),
@@ -152,6 +167,8 @@ class _LobbyState extends State<Lobby> with TickerProviderStateMixin {
             right: 0,
             child: CenterMenuIcons(
               onCharacterTap: _navigateToCharacters,
+              onShopTap: _navigateToShop,
+              onRewardsTap: _navigateToRewards, // 3. PASAMOS LA FUNCIÓN AQUÍ
             ),
           ),
 
@@ -176,7 +193,6 @@ class _LobbyState extends State<Lobby> with TickerProviderStateMixin {
             bottom: 0,
             left: 0,
             right: 0,
-            // 3. PASAMOS LA FUNCIÓN: Al widget de la barra inferior
             child: BottomNavigationBarCustom(onSettingsTap: _navigateToSettings),
           ),
         ],
@@ -284,7 +300,14 @@ class HeroRocket extends StatelessWidget {
 
 class CenterMenuIcons extends StatelessWidget {
   final VoidCallback onCharacterTap;
-  const CenterMenuIcons({super.key, required this.onCharacterTap});
+  final VoidCallback onShopTap;
+  final VoidCallback onRewardsTap; // 4. PROPIEDAD AGREGADA
+  const CenterMenuIcons({
+    super.key, 
+    required this.onCharacterTap, 
+    required this.onShopTap,
+    required this.onRewardsTap, // REQUERIDA
+  });
   
   @override
   Widget build(BuildContext context) {
@@ -295,8 +318,8 @@ class CenterMenuIcons extends StatelessWidget {
       MenuItemData(label: 'Story', icon: Icons.auto_stories_rounded, color: const Color(0xFF40C4FF), onTap: () {}),
       MenuItemData(label: 'Characters', icon: Icons.people_rounded, color: const Color(0xFFE040FB), onTap: onCharacterTap),
       MenuItemData(label: 'Achievements', icon: Icons.emoji_events_rounded, color: const Color(0xFFFFD740), onTap: () {}),
-      MenuItemData(label: 'Rewards', icon: Icons.card_giftcard_rounded, color: const Color(0xFF69F0AE), onTap: () {}),
-      MenuItemData(label: 'Shop', icon: Icons.storefront_rounded, color: const Color(0xFFFF6D00), onTap: () {}),
+      MenuItemData(label: 'Rewards', icon: Icons.card_giftcard_rounded, color: const Color(0xFF69F0AE), onTap: onRewardsTap), // 5. ASIGNADA
+      MenuItemData(label: 'Shop', icon: Icons.storefront_rounded, color: const Color(0xFFFF6D00), onTap: onShopTap),
       MenuItemData(label: 'Collection', icon: Icons.collections_bookmark_rounded, color: const Color(0xFFEA80FC), onTap: () {}),
     ];
     
@@ -354,15 +377,21 @@ class _MenuIconButtonState extends State<MenuIconButton> with SingleTickerProvid
           height: 85,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(18),
-            color: Colors.black.withValues(alpha: 0.50),
-            border: Border.all(color: widget.item.color.withValues(alpha: 0.55), width: 1.5),
+            color: Colors.black.withValues(alpha: 0.6), 
+            border: Border.all(color: widget.item.color.withValues(alpha: 0.7), width: 2),
+            boxShadow: [
+              BoxShadow(
+                color: widget.item.color.withValues(alpha: 0.2),
+                blurRadius: 8,
+              )
+            ]
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(widget.item.icon, color: widget.item.color, size: 28),
               const SizedBox(height: 4),
-              Text(widget.item.label, style: TextStyle(color: widget.item.color, fontSize: 9, fontWeight: FontWeight.bold)),
+              Text(widget.item.label.toUpperCase(), style: TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold, letterSpacing: 1)),
             ],
           ),
         ),
@@ -424,7 +453,6 @@ class _PlayButtonState extends State<PlayButton> with SingleTickerProviderStateM
   }
 }
 
-// 4. ACTUALIZADO: Constructor con onSettingsTap
 class BottomNavigationBarCustom extends StatelessWidget {
   final VoidCallback onSettingsTap;
   const BottomNavigationBarCustom({super.key, required this.onSettingsTap});
@@ -440,7 +468,7 @@ class BottomNavigationBarCustom extends StatelessWidget {
             icon: Icons.settings_rounded, 
             label: 'Settings', 
             color: const Color(0xFF69F0AE), 
-            onTap: onSettingsTap, // Asignamos la acción
+            onTap: onSettingsTap, 
           ),
           BottomNavItem(icon: Icons.help_outline_rounded, label: 'Help', color: const Color(0xFF40C4FF), onTap: () {}),
         ],
