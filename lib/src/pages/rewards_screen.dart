@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
-import 'shop_screen.dart';
 import 'achievements.dart';
 
 class RewardsScreen extends StatelessWidget {

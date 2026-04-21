@@ -176,7 +176,7 @@ class _CharactersState extends State<Characters>
     final fontSize = (availableHeight * 0.038).clamp(20.0, 34.0);
     return AnimatedBuilder(
       animation: _glowAnimation,
-      builder: (_, __) => Container(
+      builder: (_, _) => Container(
         padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 10),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(40),
@@ -314,7 +314,7 @@ class _CharacterCard extends StatelessWidget {
                 Image.asset(
                   char['image']!,
                   fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Container(
+                  errorBuilder: (_, _, _) => Container(
                     color: const Color(0xFF1A0E3D),
                     child: const Center(
                       child: Icon(Icons.person, size: 64, color: Colors.white24),
