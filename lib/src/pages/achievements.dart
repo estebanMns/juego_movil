@@ -6,9 +6,7 @@ class AchievementsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.of(context).size.height;
-    final isSmallScreen = screenHeight < 700;
-
+    // Se eliminó la variable isSmallScreen que no se estaba utilizando
     return Scaffold(
       body: Stack(
         children: [
@@ -20,7 +18,7 @@ class AchievementsScreen extends StatelessWidget {
             ),
           ),
           
-          // Overlay suave y cálido (eliminado el negro plano)
+          // Overlay suave y cálido
           Positioned.fill(
             child: Container(
               decoration: BoxDecoration(
@@ -41,7 +39,7 @@ class AchievementsScreen extends StatelessWidget {
           SafeArea(
             child: Column(
               children: [
-                // Header mejorado
+                // Header
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   child: Row(
@@ -77,7 +75,7 @@ class AchievementsScreen extends StatelessWidget {
 
                 const SizedBox(height: 10),
 
-                // Tarjeta de Progreso General mejorada
+                // Tarjeta de Progreso General
                 _buildProgressCard(),
 
                 const SizedBox(height: 25),
@@ -307,7 +305,6 @@ class AchievementsScreen extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Icono con fondo circular
                 Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(

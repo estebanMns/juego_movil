@@ -7,9 +7,8 @@ class RewardsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.of(context).size.height;
-    final isSmallScreen = screenHeight < 700;
-
+    // Se eliminaron las variables screenHeight e isSmallScreen que no se utilizaban
+    
     return Scaffold(
       body: Stack(
         children: [
@@ -21,7 +20,7 @@ class RewardsScreen extends StatelessWidget {
             ),
           ),
           
-          // Overlay con degradado de colores vibrantes (como en la imagen)
+          // Overlay con degradado de colores vibrantes
           Positioned.fill(
             child: Container(
               decoration: BoxDecoration(
@@ -97,7 +96,7 @@ class RewardsScreen extends StatelessWidget {
 
                 const SizedBox(height: 10),
 
-                // Tarjeta de Monedas - Con colores vibrantes
+                // Tarjeta de Monedas
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24.0),
                   child: _buildGlassCard(
@@ -158,7 +157,7 @@ class RewardsScreen extends StatelessWidget {
 
                 const SizedBox(height: 25),
 
-                // Título de sección con colores vibrantes
+                // Título de sección
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   decoration: BoxDecoration(
@@ -204,28 +203,28 @@ class RewardsScreen extends StatelessWidget {
                         'RECOLECTOR NIVEL 5',
                         '+500 Monedas',
                         Icons.stars_rounded,
-                        const Color(0xFF69F0AE), // Verde vibrante
+                        const Color(0xFF69F0AE),
                       ),
                       const SizedBox(height: 12),
                       _buildClaimableRewardTile(
                         'SUPER ESTRELLA',
                         '+1,000 EXP',
                         Icons.workspace_premium_rounded,
-                        const Color(0xFFFFD93D), // Amarillo/dorado
+                        const Color(0xFFFFD93D),
                       ),
                       const SizedBox(height: 12),
                       _buildClaimableRewardTile(
                         'MAESTRO DEL TIEMPO',
                         '+30 Segundos',
                         Icons.timer_rounded,
-                        const Color(0xFFFF6B6B), // Rojo/rosa
+                        const Color(0xFFFF6B6B),
                       ),
                       const SizedBox(height: 12),
                       _buildClaimableRewardTile(
                         'GUERRERO MÍSTICO',
                         '+1 Poción de Poder',
                         Icons.auto_awesome,
-                        const Color(0xFF9C27B0), // Morado
+                        const Color(0xFF9C27B0),
                       ),
                     ],
                   ),
@@ -343,7 +342,6 @@ class RewardsScreen extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           child: Row(
             children: [
-              // Icono con fondo degradado del color correspondiente
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
@@ -364,8 +362,6 @@ class RewardsScreen extends StatelessWidget {
                 child: Icon(icon, color: Colors.white, size: 26),
               ),
               const SizedBox(width: 16),
-              
-              // Textos
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -391,8 +387,6 @@ class RewardsScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              
-              // Botón RECLAMAR con gradiente del color
               Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
@@ -413,7 +407,7 @@ class RewardsScreen extends StatelessWidget {
                   color: Colors.transparent,
                   child: InkWell(
                     onTap: () {
-                      // Aquí iría la lógica para reclamar
+                      // Lógica para reclamar
                     },
                     borderRadius: BorderRadius.circular(12),
                     child: const Padding(

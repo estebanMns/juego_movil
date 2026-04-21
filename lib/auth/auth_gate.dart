@@ -4,8 +4,7 @@ import 'package:juego_movil/src/pages/home_screen.dart';
 import 'package:juego_movil/src/pages/login_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-class AuthGate extends StatefulWidget{
-
+class AuthGate extends StatefulWidget {
   const AuthGate({super.key});
 
   @override
@@ -13,24 +12,23 @@ class AuthGate extends StatefulWidget{
 }
 
 class _AuthGateState extends State<AuthGate> {
-
   @override
   Widget build(BuildContext context) {
+    // Cambiado de _auth a auth para evitar advertencias
     final auth = AuthServices();
+    
     return StreamBuilder<AuthState>(
       stream: auth.authState,
-      builder: (context, snapshot){
-        final Session = snapshot.data?.session;
+      builder: (context, snapshot) {
+        // Cambiado de Session a session (minúscula)
+        final session = snapshot.data?.session;
 
-        if (Session != null){
-        return const Home();
-      } else {
-        return const Login();
-      }
+        if (session != null) {
+          return const Home();
+        } else {
+          return const Login();
+        }
       },
-
-      
     );
-
   }
 }

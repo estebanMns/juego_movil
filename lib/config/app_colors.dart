@@ -14,7 +14,7 @@ class AppColors {
   static const Color purple3 = Color(0xFFB388FF);    // Púrpura claro para destellos
   
   // --- COLORES DE RANGO Y ESTADO ---
-  static const Color gold = Color(0xFFFFD700);       // Para monedas y rangos altos
+  static const Color gold = Color.fromARGB(255, 205, 199, 164);       // Para monedas y rangos altos
   static const Color goldLight = Color(0xFFFFF176);  // Brillo de monedas
   static const Color accuracy = Color(0xFF00FF88);   // Verde neón para precisión alta
   static const Color error = Color(0xFFFF5252);      // Rojo para alertas del sistema
