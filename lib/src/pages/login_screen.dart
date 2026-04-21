@@ -1,14 +1,35 @@
 import 'package:flutter/material.dart';
+import '../../auth/service/auth_services.dart';
 import 'register_screen.dart'; 
 import 'lobby_screen.dart';
 
-class Login extends StatelessWidget {
+class Login extends StatefulWidget {
   const Login({super.key});
 
   @override
+  State<Login> createState() => _LoginState();
+}
+
+class _LoginState extends State<Login>{
+  late final TextEditingController emailController;
+  late final TextEditingController passwordController;
+
+  @override
+  void initState(){
+    super.initState();
+    emailController = TextEditingController();
+    passwordController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
   Widget build(BuildContext context) {
-    final TextEditingController emailController = TextEditingController();
-    final TextEditingController passwordController = TextEditingController();
+    
 
     return Scaffold(
       body: Stack(
@@ -188,7 +209,10 @@ class Login extends StatelessWidget {
     );
   }
 
-  void _handleLogin(BuildContext context, String email, String password) {
+  void _handleLogin(BuildContext context, String email, String password)async {
+    final email = emailController.text.trim();
+    final password = passwordController.text.trim();
+
     if (email.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Por favor completa todos los campos'), backgroundColor: Colors.red),
@@ -196,15 +220,21 @@ class Login extends StatelessWidget {
       return;
     }
 
-    if (email == 'test@test.com' && password == '123456') {
+    //instanciamos el servicio de autenticación
+    final authService = AuthServices();
+
+    try {
+      await authService.signIn(email, password);
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const Lobby()),
       );
-    } else {
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Email o contraseña incorrectos'), backgroundColor: Colors.red),
       );
+
     }
+
   }
 }
