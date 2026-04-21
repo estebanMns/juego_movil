@@ -62,4 +62,25 @@ class AppColors {
   static const Color shopPurple2 = Color(0xFF673AB7);
   static const Color shopBlue1 = Color(0xFF2196F3);
   static const Color shopBlue2 = Color(0xFF1976D2);
+
+  // --- DENTRO DE AppColors ---
+  static const Color charTitleBorder = Color(0xFFB47FFF);
+  static const Color charTitleBg1 = Color(0xFF2D1B69);
+  static const Color charTitleBg2 = Color(0xFF1A0E3D);
+  static const Color charGlowPrimary = Color(0xFF7C3AED);
+  static const Color charGlowSecondary = Color(0xFFB47FFF);
+
+  // Colores del Lobby (HUD y Menú)
+  static const Color lobbyHudBorder = Color(0xFFE040FB);
+  static const Color lobbyBadgeGold = Color(0xFFFFD740);
+  static const Color lobbyBadgeGreen = Color(0xFF69F0AE);
+  static const Color lobbyTextMuted = Color(0xFFCE93D8);
+
+  // Colores de Iconos del Menú
+  static const Color menuStory = Color(0xFF40C4FF);
+  static const Color menuCharacters = Color(0xFFE040FB);
+  static const Color menuAchievements = Color(0xFFFFD740);
+  static const Color menuRewards = Color(0xFF69F0AE);
+  static const Color menuShop = Color(0xFFFF6D00);
+  static const Color menuCollection = Color(0xFFEA80FC);
 }
