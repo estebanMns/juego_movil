@@ -23,9 +23,9 @@ class _AuthGateState extends State<AuthGate> {
         final Session = snapshot.data?.session;
 
         if (Session != null){
-        return Home();
+        return const Home();
       } else {
-        return Login();
+        return const Login();
       }
       },
 
