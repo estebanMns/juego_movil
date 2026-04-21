@@ -5,7 +5,9 @@ import 'level_map.dart';
 import 'characters_screen.dart' as local_characters;
 import 'settings_screen.dart'; 
 import 'shop_screen.dart';
-import 'rewards_screen.dart'; // 1. IMPORTAMOS LA NUEVA PANTALLA
+import 'rewards_screen.dart';
+import 'achievements.dart'; // Importamos Logros
+import 'story_screen.dart';  // Importamos Story
 
 class Lobby extends StatefulWidget {
   const Lobby({super.key});
@@ -58,46 +60,37 @@ class _LobbyState extends State<Lobby> with TickerProviderStateMixin {
   // --- FUNCIONES DE NAVEGACIÓN ---
 
   void _navigateToPlayerProfile() {
-    Navigator.push(
-      context, 
-      MaterialPageRoute(builder: (_) => const PlayerProfileScreen())
-    );
+    Navigator.push(context, MaterialPageRoute(builder: (_) => const PlayerProfileScreen()));
   }
 
   void _navigateToLevelMap() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const Levelmap())
-    );
+    Navigator.push(context, MaterialPageRoute(builder: (_) => const Levelmap()));
   }
 
   void _navigateToCharacters() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const local_characters.Characters())
-    );
+    Navigator.push(context, MaterialPageRoute(builder: (_) => const local_characters.Characters()));
   }
 
   void _navigateToSettings() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const SettingsScreen())
-    );
+    Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsScreen()));
   }
 
   void _navigateToShop() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const ShopScreen())
-    );
+    Navigator.push(context, MaterialPageRoute(builder: (_) => const ShopScreen()));
   }
 
-  // 2. NUEVA FUNCIÓN: Navegar a Recompensas
   void _navigateToRewards() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const RewardsScreen())
-    );
+    Navigator.push(context, MaterialPageRoute(builder: (_) => const RewardsScreen()));
+  }
+
+  // NUEVA: Navegar a Logros
+  void _navigateToAchievements() {
+    Navigator.push(context, MaterialPageRoute(builder: (_) => const AchievementsScreen()));
+  }
+
+  // NUEVA: Navegar a Story
+  void _navigateToStory() {
+    Navigator.push(context, MaterialPageRoute(builder: (_) => const StoryScreen()));
   }
 
   @override
@@ -107,35 +100,24 @@ class _LobbyState extends State<Lobby> with TickerProviderStateMixin {
     return Scaffold(
       body: Stack(
         children: [
-          // Background
           Positioned.fill(
             child: Image.asset(
               'assets/images/FondoLobby.jpg',
               fit: BoxFit.cover,
             ),
           ),
-
-          // Dark overlay
           Positioned.fill(
             child: Container(
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [
-                    Color(0x55000033),
-                    Color(0x22000000),
-                    Color(0x88000033),
-                  ],
+                  colors: [Color(0x55000033), Color(0x22000000), Color(0x88000033)],
                 ),
               ),
             ),
           ),
-
-          // Star particles
           ...List.generate(28, (i) => StarParticle(index: i, controller: _twinkleController)),
-
-          // Top HUD
           Positioned(
             top: MediaQuery.of(context).padding.top + 12,
             left: 16,
@@ -145,8 +127,6 @@ class _LobbyState extends State<Lobby> with TickerProviderStateMixin {
               onAvatarTap: _navigateToPlayerProfile,
             ),
           ),
-
-          // Floating rocket / Title
           Positioned(
             top: size.height * 0.12,
             left: 0,
@@ -159,8 +139,7 @@ class _LobbyState extends State<Lobby> with TickerProviderStateMixin {
               ),
             ),
           ),
-
-          // Center menu icons
+          // MENU CENTRAL ACTUALIZADO
           Positioned(
             top: size.height * 0.45, 
             left: 0,
@@ -168,11 +147,11 @@ class _LobbyState extends State<Lobby> with TickerProviderStateMixin {
             child: CenterMenuIcons(
               onCharacterTap: _navigateToCharacters,
               onShopTap: _navigateToShop,
-              onRewardsTap: _navigateToRewards, // 3. PASAMOS LA FUNCIÓN AQUÍ
+              onRewardsTap: _navigateToRewards,
+              onAchievementsTap: _navigateToAchievements,
+              onStoryTap: _navigateToStory,
             ),
           ),
-
-          // PLAY button
           Positioned(
             bottom: size.height * 0.18,
             left: 0,
@@ -187,8 +166,6 @@ class _LobbyState extends State<Lobby> with TickerProviderStateMixin {
               ),
             ),
           ),
-
-          // Bottom navigation bar
           Positioned(
             bottom: 0,
             left: 0,
@@ -201,8 +178,116 @@ class _LobbyState extends State<Lobby> with TickerProviderStateMixin {
   }
 }
 
-// --- RESTO DE WIDGETS DE APOYO ---
+// --- WIDGETS DE APOYO ACTUALIZADOS ---
 
+class CenterMenuIcons extends StatelessWidget {
+  final VoidCallback onCharacterTap;
+  final VoidCallback onShopTap;
+  final VoidCallback onRewardsTap;
+  final VoidCallback onAchievementsTap;
+  final VoidCallback onStoryTap;
+
+  const CenterMenuIcons({
+    super.key, 
+    required this.onCharacterTap, 
+    required this.onShopTap,
+    required this.onRewardsTap,
+    required this.onAchievementsTap,
+    required this.onStoryTap,
+  });
+  
+  @override
+  Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final buttonWidth = (screenWidth - 48) / 3;
+    
+    final menuItems = [
+      MenuItemData(label: 'Story', icon: Icons.auto_stories_rounded, color: const Color(0xFF40C4FF), onTap: onStoryTap),
+      MenuItemData(label: 'Characters', icon: Icons.people_rounded, color: const Color(0xFFE040FB), onTap: onCharacterTap),
+      MenuItemData(label: 'Achievements', icon: Icons.emoji_events_rounded, color: const Color(0xFFFFD740), onTap: onAchievementsTap),
+      MenuItemData(label: 'Rewards', icon: Icons.card_giftcard_rounded, color: const Color(0xFF69F0AE), onTap: onRewardsTap),
+      MenuItemData(label: 'Shop', icon: Icons.storefront_rounded, color: const Color(0xFFFF6D00), onTap: onShopTap),
+      MenuItemData(label: 'Collection', icon: Icons.collections_bookmark_rounded, color: const Color(0xFFEA80FC), onTap: () {}),
+    ];
+    
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Wrap(
+        alignment: WrapAlignment.center,
+        spacing: 12, runSpacing: 12,
+        children: menuItems.map((item) => 
+          SizedBox(
+            width: buttonWidth > 100 ? 100 : buttonWidth,
+            child: MenuIconButton(item: item),
+          )
+        ).toList(),
+      ),
+    );
+  }
+}
+
+// --- LOS DEMÁS WIDGETS SE MANTIENEN IGUAL (TopHud, HudBadge, MenuIconButton, etc.) ---
+// (He omitido el resto del código repetitivo para que sea más fácil de leer, 
+// pero asegúrate de mantener tus clases StarParticle, PlayButton, etc. en el archivo)
+
+class MenuItemData {
+  final String label;
+  final IconData icon;
+  final Color color;
+  final VoidCallback onTap;
+  const MenuItemData({required this.label, required this.icon, required this.color, required this.onTap});
+}
+
+class MenuIconButton extends StatefulWidget {
+  final MenuItemData item;
+  const MenuIconButton({super.key, required this.item});
+  @override
+  State<MenuIconButton> createState() => _MenuIconButtonState();
+}
+
+class _MenuIconButtonState extends State<MenuIconButton> with SingleTickerProviderStateMixin {
+  late AnimationController _ctrl;
+  late Animation<double> _scale;
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 120));
+    _scale = Tween<double>(begin: 1.0, end: 0.88).animate(_ctrl);
+  }
+  @override
+  void dispose() { _ctrl.dispose(); super.dispose(); }
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTapDown: (_) => _ctrl.forward(),
+      onTapUp: (_) => _ctrl.reverse(),
+      onTap: widget.item.onTap,
+      child: ScaleTransition(
+        scale: _scale,
+        child: Container(
+          height: 85,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(18),
+            color: Colors.black.withValues(alpha: 0.6), 
+            border: Border.all(color: widget.item.color.withValues(alpha: 0.7), width: 2),
+            boxShadow: [BoxShadow(color: widget.item.color.withValues(alpha: 0.2), blurRadius: 8)]
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(widget.item.icon, color: widget.item.color, size: 28),
+              const SizedBox(height: 4),
+              Text(widget.item.label.toUpperCase(), style: const TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold, letterSpacing: 1)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// (Sigue el resto de tu código de TopHud, PlayButton, etc. hasta el final)
+// ...
 class TopHud extends StatelessWidget {
   final Animation<double> floatAnim;
   final VoidCallback onAvatarTap;
@@ -294,108 +379,6 @@ class HeroRocket extends StatelessWidget {
         const SizedBox(height: 10),
         const Text('El Robo De Molly', style: TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.w900, letterSpacing: 5)),
       ],
-    );
-  }
-}
-
-class CenterMenuIcons extends StatelessWidget {
-  final VoidCallback onCharacterTap;
-  final VoidCallback onShopTap;
-  final VoidCallback onRewardsTap; // 4. PROPIEDAD AGREGADA
-  const CenterMenuIcons({
-    super.key, 
-    required this.onCharacterTap, 
-    required this.onShopTap,
-    required this.onRewardsTap, // REQUERIDA
-  });
-  
-  @override
-  Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final buttonWidth = (screenWidth - 48) / 3;
-    
-    final menuItems = [
-      MenuItemData(label: 'Story', icon: Icons.auto_stories_rounded, color: const Color(0xFF40C4FF), onTap: () {}),
-      MenuItemData(label: 'Characters', icon: Icons.people_rounded, color: const Color(0xFFE040FB), onTap: onCharacterTap),
-      MenuItemData(label: 'Achievements', icon: Icons.emoji_events_rounded, color: const Color(0xFFFFD740), onTap: () {}),
-      MenuItemData(label: 'Rewards', icon: Icons.card_giftcard_rounded, color: const Color(0xFF69F0AE), onTap: onRewardsTap), // 5. ASIGNADA
-      MenuItemData(label: 'Shop', icon: Icons.storefront_rounded, color: const Color(0xFFFF6D00), onTap: onShopTap),
-      MenuItemData(label: 'Collection', icon: Icons.collections_bookmark_rounded, color: const Color(0xFFEA80FC), onTap: () {}),
-    ];
-    
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Wrap(
-        alignment: WrapAlignment.center,
-        spacing: 12, runSpacing: 12,
-        children: menuItems.map((item) => 
-          SizedBox(
-            width: buttonWidth > 100 ? 100 : buttonWidth,
-            child: MenuIconButton(item: item),
-          )
-        ).toList(),
-      ),
-    );
-  }
-}
-
-class MenuItemData {
-  final String label;
-  final IconData icon;
-  final Color color;
-  final VoidCallback onTap;
-  const MenuItemData({required this.label, required this.icon, required this.color, required this.onTap});
-}
-
-class MenuIconButton extends StatefulWidget {
-  final MenuItemData item;
-  const MenuIconButton({super.key, required this.item});
-  @override
-  State<MenuIconButton> createState() => _MenuIconButtonState();
-}
-
-class _MenuIconButtonState extends State<MenuIconButton> with SingleTickerProviderStateMixin {
-  late AnimationController _ctrl;
-  late Animation<double> _scale;
-  @override
-  void initState() {
-    super.initState();
-    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 120));
-    _scale = Tween<double>(begin: 1.0, end: 0.88).animate(_ctrl);
-  }
-  @override
-  void dispose() { _ctrl.dispose(); super.dispose(); }
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: (_) => _ctrl.forward(),
-      onTapUp: (_) => _ctrl.reverse(),
-      onTap: widget.item.onTap,
-      child: ScaleTransition(
-        scale: _scale,
-        child: Container(
-          height: 85,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(18),
-            color: Colors.black.withValues(alpha: 0.6), 
-            border: Border.all(color: widget.item.color.withValues(alpha: 0.7), width: 2),
-            boxShadow: [
-              BoxShadow(
-                color: widget.item.color.withValues(alpha: 0.2),
-                blurRadius: 8,
-              )
-            ]
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(widget.item.icon, color: widget.item.color, size: 28),
-              const SizedBox(height: 4),
-              Text(widget.item.label.toUpperCase(), style: TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold, letterSpacing: 1)),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }
