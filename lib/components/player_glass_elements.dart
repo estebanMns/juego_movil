@@ -1,10 +1,20 @@
-import 'package:flutter/material.dart';
+// lib/components/player_glass_elements.dart
+// Responsabilidad: Widgets de estilo "vidrio" (glassmorphism) reutilizables
+// en la pantalla de perfil del jugador.
+
 import 'dart:ui';
+import 'package:flutter/material.dart';
 import 'package:juego_movil/config/app_colors.dart';
 
+// ---------------------------------------------------------------------------
+// Tarjeta de vidrio con blur
+// ---------------------------------------------------------------------------
+
+/// Contenedor con efecto glassmorphism, blur y borde traslúcido.
 class PlayerGlassCard extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry? padding;
+
   const PlayerGlassCard({super.key, required this.child, this.padding});
 
   @override
@@ -16,7 +26,7 @@ class PlayerGlassCard extends StatelessWidget {
         child: Container(
           padding: padding ?? const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: AppColors.surface, // Asegúrate que AppColors tenga 'surface'
+            color: AppColors.surface,
             borderRadius: BorderRadius.circular(15),
             border: Border.all(color: AppColors.border),
           ),
@@ -27,10 +37,44 @@ class PlayerGlassCard extends StatelessWidget {
   }
 }
 
+// ---------------------------------------------------------------------------
+// Chip de vidrio (etiqueta pequeña)
+// ---------------------------------------------------------------------------
+
+/// Pequeña etiqueta pill con fondo semitransparente.
+class PlayerGlassChip extends StatelessWidget {
+  final Widget child;
+
+  const PlayerGlassChip({super.key, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceStrong,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: child,
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Botón circular de vidrio con ícono
+// ---------------------------------------------------------------------------
+
+/// Botón circular con efecto glassmorphism y un ícono centrado.
 class PlayerGlassButton extends StatelessWidget {
   final IconData icon;
   final VoidCallback onTap;
-  const PlayerGlassButton({super.key, required this.icon, required this.onTap});
+
+  const PlayerGlassButton({
+    super.key,
+    required this.icon,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {

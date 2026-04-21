@@ -44,7 +44,7 @@ class PlayerProfileController extends GetxController with GetSingleTickerProvide
     player.value = const PlayerModel(
       uid: 'u001',
       username: 'Perro Blanco',
-      avatarUrl: 'https://tu-url-de-imagen.com/yoongi.jpg', // Cambiado a URL para evitar errores si no está en assets
+      avatarUrl: 'assets/images/kovuIcon.png', // Usamos el asset del Lobby como pediste
       coins: 0,
       level: 0,
       xp: 0,
