@@ -46,7 +46,16 @@ class LevelDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Receiving arguments from the Map screen
-    final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+    final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+
+    // Protección: Si no hay argumentos, volvemos atrás para evitar el crash
+    if (args == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.pop(context);
+      });
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
     final int levelId = args['levelId'];
     final String levelName = args['levelName'];
 

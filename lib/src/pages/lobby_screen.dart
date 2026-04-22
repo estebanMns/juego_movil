@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import '../../components/player_profile_controller.dart';
 import '../../utils/navigation_service.dart';
 import '../../components/lobby/lobby_menu.dart';
 import '../../components/lobby/lobby_widgets.dart';
@@ -20,6 +22,7 @@ class _LobbyState extends State<Lobby> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     _navigationService = NavigationService(context: context);
+    Get.put(PlayerProfileController());
     
     _floatController = AnimationController(vsync: this, duration: const Duration(seconds: 3))..repeat(reverse: true);
     _floatAnimation = Tween<double>(begin: -8, end: 8).animate(CurvedAnimation(parent: _floatController, curve: Curves.easeInOut));
@@ -75,13 +78,22 @@ class _LobbyState extends State<Lobby> with TickerProviderStateMixin {
   }
 
   Widget _buildHero(Size size) {
+    final controller = Get.find<PlayerProfileController>();
+
     return Positioned(top: size.height * 0.12, left: 0, right: 0,
       child: AnimatedBuilder(
         animation: _floatAnimation,
         builder: (_, _) => Transform.translate(
           offset: Offset(0, _floatAnimation.value),
           child: Column(children: [
-            ClipOval(child: Image.asset('assets/images/kovuIcon.png', width: 130, height: 130, fit: BoxFit.cover)),
+            Obx(() {
+              final avatarUrl = controller.player.value?.avatarUrl ?? '';
+              return ClipOval(
+                child: avatarUrl.startsWith('http')
+                    ? Image.network(avatarUrl, width: 130, height: 130, fit: BoxFit.cover)
+                    : Image.asset(avatarUrl.isEmpty ? 'assets/images/kovuIcon.png' : avatarUrl, width: 130, height: 130, fit: BoxFit.cover),
+              );
+            }),
             const SizedBox(height: 10),
             const Text('El Robo De Molly', style: TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.w900, letterSpacing: 5)),
           ]),

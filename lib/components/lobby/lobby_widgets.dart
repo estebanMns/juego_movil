@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import '../player_profile_controller.dart';
+import '../avatar_picker_sheet.dart';
 
 // --- HUD SUPERIOR ---
 class TopHud extends StatelessWidget {
@@ -34,15 +37,54 @@ class TopHud extends StatelessWidget {
 class _AvatarDisplay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 60, height: 60,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        border: Border.all(color: const Color(0xFFE040FB), width: 2.5),
-        boxShadow: [BoxShadow(color: const Color(0xFFE040FB).withValues(alpha: 0.6), blurRadius: 12, spreadRadius: 2)],
-      ),
-      child: const CircleAvatar(radius: 26, backgroundImage: AssetImage('assets/images/kovuIcon.png')),
-    );
+    final controller = Get.find<PlayerProfileController>();
+
+    return Obx(() {
+      final avatarUrl = controller.player.value?.avatarUrl ?? '';
+      return Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Container(
+            width: 60,
+            height: 60,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(color: const Color(0xFFE040FB), width: 2.5),
+              boxShadow: [
+                BoxShadow(
+                    color: const Color(0xFFE040FB).withValues(alpha: 0.6),
+                    blurRadius: 12,
+                    spreadRadius: 2)
+              ],
+            ),
+            child: CircleAvatar(
+              radius: 26,
+              backgroundImage: avatarUrl.startsWith('http')
+                  ? NetworkImage(avatarUrl)
+                  : AssetImage(avatarUrl.isEmpty ? 'assets/images/kovuIcon.png' : avatarUrl) as ImageProvider,
+            ),
+          ),
+          Positioned(
+            right: -2,
+            bottom: -2,
+            child: GestureDetector(
+              onTap: () => AvatarPickerSheet.show(context),
+              child: Container(
+                padding: const EdgeInsets.all(4),
+                decoration: const BoxDecoration(
+                  color: Color(0xFF00E5FF),
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2)),
+                  ],
+                ),
+                child: const Icon(Icons.edit, size: 12, color: Colors.black),
+              ),
+            ),
+          ),
+        ],
+      );
+    });
   }
 }
 
@@ -50,13 +92,27 @@ class _PlayerInfoDisplay extends StatelessWidget {
   const _PlayerInfoDisplay();
   @override
   Widget build(BuildContext context) {
-    return const Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('EVIE', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w900, letterSpacing: 2)),
-        Text('SPACE EXPLORER', style: TextStyle(color: Color(0xFFCE93D8), fontSize: 10, letterSpacing: 1.5)),
-      ],
-    );
+    final controller = Get.find<PlayerProfileController>();
+
+    return Obx(() {
+      final username = controller.player.value?.username ?? 'PILOTO';
+      final rank = controller.player.value?.rank ?? 'EXPLORADOR';
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(username.toUpperCase(),
+              style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 2)),
+          Text(rank.toUpperCase(),
+              style: const TextStyle(
+                  color: Color(0xFFCE93D8), fontSize: 10, letterSpacing: 1.5)),
+        ],
+      );
+    });
   }
 }
 

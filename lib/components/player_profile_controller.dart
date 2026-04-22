@@ -5,13 +5,18 @@ import 'package:get/get.dart';
 
 // Importaciones optimizadas
 import 'package:juego_movil/models/player_model.dart';
+import 'package:juego_movil/auth/service/supabase_service.dart';
 
 class PlayerProfileController extends GetxController with GetSingleTickerProviderStateMixin {
   
+  final SupabaseService _supabaseService = SupabaseService();
+
   // --- ESTADO DEL JUGADOR ---
-  // Rxn permite que el valor inicial sea nulo hasta que carguen los datos
   final player = Rxn<PlayerModel>();
   final isLoading = true.obs;
+  
+  // Lista de avatares para el selector
+  final availableAvatars = <String>[].obs;
 
   // --- ANIMACIONES DEL HUD ---
   late AnimationController pulseController;
@@ -21,30 +26,58 @@ class PlayerProfileController extends GetxController with GetSingleTickerProvide
   void onInit() {
     super.onInit();
     
-    // Configuración de la animación de las órbitas y partículas
+    // Inicialización inmediata de las animaciones para evitar errores de 'late'
     pulseController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 10),
-    )..repeat(); // Se repite infinitamente
-
+    );
     orbitAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(pulseController);
+    pulseController.repeat();
 
-    // Carga inicial de datos
     _loadPlayerData();
+    _loadAvailableAvatars();
   }
 
   void _loadPlayerData() async {
     isLoading.value = true;
     
-    // Simulación de delay de red
-    await Future.delayed(const Duration(milliseconds: 800));
+    try {
+      // Intentamos cargar datos con un tiempo límite de 3 segundos
+      final profileData = await _supabaseService.getUserProfile().timeout(
+        const Duration(seconds: 3),
+        onTimeout: () => throw 'Timeout',
+      );
+      
+      if (profileData != null) {
+        player.value = PlayerModel(
+          uid: profileData['id'] ?? 'u001',
+          username: profileData['username'] ?? 'Usuario',
+          avatarUrl: profileData['avatar_url'] ?? 'https://tvjdkuitdsmqiyymzjto.supabase.co/storage/v1/object/public/avatares/kobu.jpeg', 
+          coins: profileData['coins'] ?? 0,
+          level: profileData['level'] ?? 0,
+          xp: profileData['xp'] ?? 0,
+          xpToNextLevel: profileData['xp_to_next_level'] ?? 1000,
+          rank: profileData['rank'] ?? 'RECLUTA',
+          scanAccuracy: (profileData['scan_accuracy'] ?? 0.0).toDouble(),
+          totalScans: profileData['total_scans'] ?? 0,
+          dogsCollected: profileData['dogs_collected'] ?? 0,
+        );
+      } else {
+        _setFallbackPlayerData();
+      }
+    } catch (e) {
+      print("Error cargando perfil: $e");
+      _setFallbackPlayerData();
+    } finally {
+      isLoading.value = false;
+    }
+  }
 
-    // Datos de prueba
-    // Nota: Asegúrate de que PlayerModel coincida con estos campos
+  void _setFallbackPlayerData() {
     player.value = const PlayerModel(
       uid: 'u001',
       username: 'Perro Blanco',
-      avatarUrl: 'assets/images/kovuIcon.png', // Usamos el asset del Lobby como pediste
+      avatarUrl: 'https://tvjdkuitdsmqiyymzjto.supabase.co/storage/v1/object/public/avatares/kobu.jpeg',
       coins: 0,
       level: 0,
       xp: 0,
@@ -54,22 +87,77 @@ class PlayerProfileController extends GetxController with GetSingleTickerProvide
       totalScans: 0,
       dogsCollected: 0,
     );
+  }
 
-    isLoading.value = false;
+  void _loadAvailableAvatars() async {
+    print("Iniciando carga de avatares disponibles...");
+    try {
+      final urls = await _supabaseService.getAvailableAvatars();
+      print("Avatares cargados desde servicio: ${urls.length}");
+      for (var url in urls) {
+        print("URL disponible: $url");
+      }
+      availableAvatars.assignAll(urls);
+    } catch (e) {
+      print("Error cargando avatares en el controlador: $e");
+    }
   }
 
   // --- MÉTODOS DE ACCIÓN ---
   
+  Future<void> updateAvatar(String newUrl) async {
+    print("Intentando cambiar avatar a: $newUrl");
+    if (player.value == null) {
+      print("Error: El jugador es nulo");
+      return;
+    }
+
+    try {
+      // 1. Actualizar en Supabase
+      await _supabaseService.updateUserAvatar(newUrl);
+      print("Avatar actualizado en Supabase");
+      
+      // 2. Actualizar estado local para UI instantánea
+      final p = player.value!;
+      player.value = PlayerModel(
+        uid: p.uid,
+        username: p.username,
+        avatarUrl: newUrl,
+        coins: p.coins,
+        level: p.level,
+        xp: p.xp,
+        xpToNextLevel: p.xpToNextLevel,
+        rank: p.rank,
+        scanAccuracy: p.scanAccuracy,
+        totalScans: p.totalScans,
+        dogsCollected: p.dogsCollected,
+      );
+      
+      if (Get.isBottomSheetOpen ?? false) Get.back(); 
+      
+      Get.snackbar('Éxito', '¡Avatar actualizado correctamente!', 
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green.withValues(alpha: 0.8),
+        colorText: Colors.white,
+      );
+    } catch (e) {
+      print("Error en updateAvatar: $e");
+      Get.snackbar('Error', 'No se pudo actualizar el avatar: $e',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red.withValues(alpha: 0.8),
+        colorText: Colors.white,
+      );
+    }
+  }
+
   void refreshStats() {
     _loadPlayerData();
   }
 
-  // Getter útil para la barra de progreso
   double get xpProgress => (player.value?.xp ?? 0) / (player.value?.xpToNextLevel ?? 1);
 
   @override
   void onClose() {
-    // Es vital hacer dispose para evitar fugas de memoria (memory leaks)
     pulseController.dispose(); 
     super.onClose();
   }

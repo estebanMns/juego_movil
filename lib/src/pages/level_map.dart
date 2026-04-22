@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import '../../components/player_profile_controller.dart';
 
 // ============================================================
 // MODELO DE DATOS
@@ -226,6 +228,7 @@ class _LevelmapState extends State<Levelmap> with TickerProviderStateMixin {
   Widget _buildCharacter(Offset levelPos) {
     const double characterSize = 55.0;
     const double floatAbove = 70.0;
+    final controller = Get.find<PlayerProfileController>();
 
     return AnimatedBuilder(
       animation: _characterBounce,
@@ -254,13 +257,22 @@ class _LevelmapState extends State<Levelmap> with TickerProviderStateMixin {
               ],
             ),
             child: ClipOval(
-              child: Image.asset(
-                'assets/images/yoongi.jpg',
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return const Icon(Icons.person, size: 30);
-                },
-              ),
+              child: Obx(() {
+                final avatarUrl = controller.player.value?.avatarUrl ?? '';
+                return avatarUrl.startsWith('http')
+                    ? Image.network(
+                        avatarUrl,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) =>
+                            const Icon(Icons.person, size: 30),
+                      )
+                    : Image.asset(
+                        avatarUrl.isEmpty ? 'assets/images/yoongi.jpg' : avatarUrl,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) =>
+                            const Icon(Icons.person, size: 30),
+                      );
+              }),
             ),
           ),
           const SizedBox(height: 6),

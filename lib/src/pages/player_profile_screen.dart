@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:juego_movil/config/app_colors.dart';
 import 'package:juego_movil/components/player_profile_controller.dart';
+import 'package:juego_movil/components/avatar_picker_sheet.dart';
 import 'package:juego_movil/components/player_top_bar.dart';
 import 'package:juego_movil/components/player_galaxy_background.dart';
 import 'package:juego_movil/components/player_stats_widgets.dart';
 
 class PlayerProfileScreen extends StatelessWidget {
   const PlayerProfileScreen({super.key});
+
 
   @override
   Widget build(BuildContext context) {
@@ -40,6 +42,12 @@ class PlayerProfileScreen extends StatelessWidget {
                 );
               }
 
+              if (controller.player.value == null) {
+                return const Center(
+                  child: Text('Error al cargar datos del jugador', style: TextStyle(color: Colors.white)),
+                );
+              }
+
               final p = controller.player.value!;
 
               return SingleChildScrollView(
@@ -54,7 +62,11 @@ class PlayerProfileScreen extends StatelessWidget {
                     const SizedBox(height: 40),
 
                     // Avatar con anillo y badge de nivel
-                    PlayerAvatar(avatarUrl: p.avatarUrl, level: p.level),
+                    PlayerAvatar(
+                      avatarUrl: p.avatarUrl, 
+                      level: p.level,
+                      onTap: () => AvatarPickerSheet.show(context),
+                    ),
 
                     const SizedBox(height: 15),
 
@@ -80,7 +92,32 @@ class PlayerProfileScreen extends StatelessWidget {
                       ),
                     ),
 
-                    const SizedBox(height: 30),
+                    const SizedBox(height: 20),
+
+                    // Botón para cambiar avatar (Alternativo al lápiz)
+                    TextButton.icon(
+                      onPressed: () => AvatarPickerSheet.show(context),
+                      icon: const Icon(Icons.cached_rounded, color: AppColors.cyan, size: 18),
+                      label: const Text(
+                        'CAMBIAR AVATAR',
+                        style: TextStyle(
+                          color: AppColors.cyan,
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.2,
+                        ),
+                      ),
+                      style: TextButton.styleFrom(
+                        backgroundColor: AppColors.cyan.withValues(alpha: 0.1),
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                          side: BorderSide(color: AppColors.cyan.withValues(alpha: 0.3)),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 20),
 
                     // Barra de progreso de experiencia
                     PlayerLevelProgressCard(

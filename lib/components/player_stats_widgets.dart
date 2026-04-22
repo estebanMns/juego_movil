@@ -15,56 +15,80 @@ import 'player_glass_elements.dart';
 class PlayerAvatar extends StatelessWidget {
   final String avatarUrl;
   final int level;
+  final VoidCallback? onTap;
 
   const PlayerAvatar({
     super.key,
     required this.avatarUrl,
     required this.level,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        Container(
-          width: 140,
-          height: 140,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(
-              color: AppColors.cyan.withValues(alpha: 0.5),
-              width: 2,
+    return GestureDetector(
+      onTap: onTap,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Container(
+            width: 140,
+            height: 140,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: AppColors.cyan.withValues(alpha: 0.5),
+                width: 2,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.cyan.withValues(alpha: 0.2),
+                  blurRadius: 20,
+                  spreadRadius: 5,
+                ),
+              ],
             ),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.cyan.withValues(alpha: 0.2),
-                blurRadius: 20,
-                spreadRadius: 5,
-              ),
-            ],
-          ),
-          child: CircleAvatar(
-            backgroundImage: avatarUrl.startsWith('assets/')
-                ? AssetImage(avatarUrl) as ImageProvider
-                : NetworkImage(avatarUrl),
-            backgroundColor: Colors.white10,
-          ),
-        ),
-        Positioned(
-          bottom: 0,
-          child: PlayerGlassChip(
-            child: Text(
-              'LVL $level',
-              style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
+            child: CircleAvatar(
+              backgroundImage: avatarUrl.startsWith('http')
+                  ? NetworkImage(avatarUrl)
+                  : AssetImage(avatarUrl.startsWith('assets/') ? avatarUrl : 'assets/$avatarUrl') as ImageProvider,
+              backgroundColor: Colors.white10,
             ),
           ),
-        ),
-      ],
+          Positioned(
+            bottom: 0,
+            child: PlayerGlassChip(
+              child: Text(
+                'LVL $level',
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+          if (onTap != null)
+            Positioned(
+              right: 5,
+              bottom: 30,
+              child: GestureDetector(
+                onTap: onTap,
+                child: Container(
+                  padding: const EdgeInsets.all(6), // Un poco más de padding
+                  decoration: const BoxDecoration(
+                    color: AppColors.cyan,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(color: Colors.black45, blurRadius: 4, offset: Offset(0, 2)),
+                    ],
+                  ),
+                  child: const Icon(Icons.edit, size: 16, color: Colors.black),
+                ),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }

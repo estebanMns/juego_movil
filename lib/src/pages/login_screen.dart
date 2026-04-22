@@ -231,7 +231,7 @@ class _LoginState extends State<Login>{
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Email o contraseña incorrectos'), backgroundColor: Colors.red),
+        SnackBar(content: Text('Error: ${e.toString()}'), backgroundColor: Colors.red),
       );
 
     }
