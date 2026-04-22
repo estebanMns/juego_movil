@@ -1,151 +1,123 @@
 import 'package:flutter/material.dart';
-import 'package:camera/camera.dart';
-import 'level_detail.dart'; // Importante para acceder a levelDetailsList
+import 'package:get/get.dart';
+import 'package:juego_movil/components/yolo/game_scan_controller.dart';
+import 'package:juego_movil/components/yolo/smart_yolo_camera.dart';
+import 'package:juego_movil/config/app_colors.dart';
+import 'level_detail.dart';
 
 // ============================================================
 // LÓGICA DE NIVELES (DIFERENCIACIÓN Y FONDO)
 // ============================================================
 class LevelGameData {
-  final String targetObject;
-  final double timeLimit; // en segundos
+  final String targetObject; // Debe coincidir con labels.txt (COCO)
+  final String displayName;  // Nombre amigable para el usuario
+  final double timeLimit;
   final bool isHard;
-  final String backgroundImage; // Ruta del asset de fondo para este nivel
+  final String backgroundImage;
 
   LevelGameData({
     required this.targetObject,
+    required this.displayName,
     required this.timeLimit,
     this.isHard = false,
-    required this.backgroundImage, // Ahora es obligatorio
+    required this.backgroundImage,
   });
 }
 
-// Mapa de configuración para los 20 niveles (Actualizado con Fondos)
+// Mapa de configuración para los niveles (Mapeado a etiquetas COCO reales)
 final Map<int, LevelGameData> gameLevelConfigs = {
   0: LevelGameData(
-    targetObject: "Molly (Tutorial)", 
+    targetObject: "dog", 
+    displayName: "Molly (Tutorial)",
     timeLimit: 120, 
-    backgroundImage: 'assets/images/fondomolly.png', // Ejemplo
+    backgroundImage: 'assets/images/fondomolly.png',
   ),
   1: LevelGameData(
-    targetObject: "Ball", 
+    targetObject: "sports ball", 
+    displayName: "Pelota de Juego",
     timeLimit: 60, 
-    backgroundImage: 'assets/images/fondogame_level1.png', // Ejemplo
+    backgroundImage: 'assets/images/fondogame_level1.png',
   ),
   2: LevelGameData(
-    targetObject: "Bowl", 
+    targetObject: "bowl", 
+    displayName: "Tazón de Comida",
     timeLimit: 55, 
-    backgroundImage: 'assets/images/fondogame_level2.png', // Ejemplo
+    backgroundImage: 'assets/images/fondogame_level2.png',
   ),
   3: LevelGameData(
-    targetObject: "Key (Story)", 
+    targetObject: "bottle", 
+    displayName: "Botella de Agua",
     timeLimit: 50, 
-    backgroundImage: 'assets/images/fondogame_story.png', // Nivel de Historia
+    backgroundImage: 'assets/images/fondogame_story.png',
   ), 
   4: LevelGameData(
-    targetObject: "Collar", 
+    targetObject: "cup", 
+    displayName: "Taza de Café",
     timeLimit: 45, 
-    backgroundImage: 'assets/images/fondogame_level1.png', // Reutilizando fondo
+    backgroundImage: 'assets/images/fondogame_level1.png',
   ),
-  5: LevelGameData(
-    targetObject: "Big Bone", 
-    timeLimit: 40, 
-    isHard: true, 
-    backgroundImage: 'assets/images/fondogame_boss.png', // Boss
-  ), 
-  // ... sigue personalizando para los 20 niveles. 
-  // Asegúrate de que las imágenes existan en tus assets.
 };
 
-// Función de utilidad para obtener config por defecto (Actualizada con Fondo)
 LevelGameData getLevelConfig(int id) {
   return gameLevelConfigs[id] ?? LevelGameData(
-    targetObject: "Hidden Item", 
+    targetObject: "person", 
+    displayName: "Humano",
     timeLimit: (60 - id).clamp(20, 60).toDouble(),
     isHard: id % 5 == 0,
-    // Fondo genérico si no se define uno específico
     backgroundImage: 'assets/images/fondogame_generic.png', 
   );
 }
 
 // ============================================================
-// PANTALLA DE JUEGO PRINCIPAL
+// PANTALLA DE JUEGO PRINCIPAL CON YOLO INTELIGENTE
 // ============================================================
-class GameScreen extends StatefulWidget {
+class GameScreen extends StatelessWidget {
   const GameScreen({super.key});
-
-  @override
-  State<GameScreen> createState() => _GameScreenState();
-}
-
-class _GameScreenState extends State<GameScreen> {
-  CameraController? _controller;
-  bool _isCameraInitialized = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _initializeCamera();
-  }
-
-  Future<void> _initializeCamera() async {
-    final cameras = await availableCameras();
-    if (cameras.isEmpty) return;
-
-    _controller = CameraController(cameras[0], ResolutionPreset.high);
-    await _controller!.initialize();
-    if (!mounted) return;
-    setState(() {
-      _isCameraInitialized = true;
-    });
-  }
-
-  @override
-  void dispose() {
-    _controller?.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
     final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
     final int levelId = args['levelId'];
     
-    // Obtenemos info general y específica del nivel
     final detail = levelDetailsList.firstWhere((l) => l.id == levelId);
     final config = getLevelConfig(levelId);
 
+    // Inicializamos el controlador de escaneo para este nivel
+    final scanController = Get.put(
+      GameScanController(targetObject: config.targetObject),
+      tag: 'level_$levelId',
+    );
+
     return Scaffold(
-      backgroundColor: Colors.black, // Color de fondo base
-      body: Stack( // Usamos Stack para poner el fondo detrás de todo
+      backgroundColor: Colors.black,
+      body: Stack(
         children: [
-          // 1. FONDO DESDE ASSETS (NUEVO)
+          // 1. FONDO ASSET
           Container(
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage(config.backgroundImage), // Usa la imagen definida para el nivel
-                fit: BoxFit.cover, // Cubre toda la pantalla
+                image: AssetImage(config.backgroundImage),
+                fit: BoxFit.cover,
               ),
             ),
           ),
           
-          // Opcional: Una capa semi-transparente para asegurar la legibilidad de la UI
           Container(color: Colors.black.withValues(alpha: 0.3)),
 
-          // 2. CONTENIDO DEL JUEGO (SafeArea para evitar muescas)
+          // 2. CONTENIDO DEL JUEGO
           SafeArea(
             child: Column(
               children: [
-                // BARRA SUPERIOR
                 _buildTopBar(detail, config),
 
-                // ÁREA DE CÁMARA (Visión del juego)
+                // ÁREA DE CÁMARA (SmartYoloCamera detecta soporte)
                 Expanded(
                   flex: 7,
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
-                      _buildCameraPreview(),
-                      _buildObjectTarget(config.targetObject, config.isHard),
+                      _buildDetectionCamera(scanController),
+                      _buildStatusOverlay(scanController, config),
                     ],
                   ),
                 ),
@@ -153,7 +125,7 @@ class _GameScreenState extends State<GameScreen> {
                 // BOTONES INFERIORES
                 Expanded(
                   flex: 2,
-                  child: _buildBottomControls(),
+                  child: _buildBottomControls(scanController, context),
                 ),
               ],
             ),
@@ -163,9 +135,74 @@ class _GameScreenState extends State<GameScreen> {
     );
   }
 
+  Widget _buildDetectionCamera(GameScanController controller) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.5),
+            blurRadius: 15,
+            spreadRadius: -5,
+          ),
+        ],
+      ),
+      clipBehavior: Clip.antiAlias,
+      // USAMOS SmartYoloCamera en lugar de YOLOView directamente
+      child: SmartYoloCamera(
+        onResult: (results) {
+          controller.onDetectionResults(results);
+        },
+      ),
+    );
+  }
+
+  Widget _buildStatusOverlay(GameScanController controller, LevelGameData config) {
+    return Obx(() {
+      final isFound = controller.isTargetFound.value;
+      final color = isFound ? Colors.greenAccent : (config.isHard ? Colors.redAccent : Colors.cyanAccent);
+      
+      return Positioned(
+        top: 30,
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+              decoration: BoxDecoration(
+                color: Colors.black.withValues(alpha: 0.7),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: color.withValues(alpha: 0.8), width: 2),
+                boxShadow: [
+                  if (isFound) BoxShadow(color: Colors.greenAccent.withValues(alpha: 0.4), blurRadius: 20)
+                ],
+              ),
+              child: Text(
+                isFound ? "¡OBJETO CORRECTO!" : config.displayName.toUpperCase(),
+                style: TextStyle(
+                  color: isFound ? Colors.greenAccent : Colors.white,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 2,
+                ),
+              ),
+            ),
+            if (isFound)
+              const Padding(
+                padding: EdgeInsets.only(top: 8),
+                child: Text(
+                  "Toca la cámara para capturar",
+                  style: TextStyle(color: Colors.white70, fontSize: 10),
+                ),
+              ),
+          ],
+        ),
+      );
+    });
+  }
+
   Widget _buildTopBar(LevelDetailInfo detail, LevelGameData config) {
     return Container(
-      // Añadimos un fondo ligero a la barra superior para legibilidad
       margin: const EdgeInsets.all(16.0),
       padding: const EdgeInsets.all(12.0),
       decoration: BoxDecoration(
@@ -175,20 +212,19 @@ class _GameScreenState extends State<GameScreen> {
       ),
       child: Row(
         children: [
-          // Barra de Tiempo
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  height: 10,
+                  height: 8,
                   decoration: BoxDecoration(
-                    color: Colors.white12,
+                    color: Colors.white10,
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: FractionallySizedBox(
                     alignment: Alignment.centerLeft,
-                    widthFactor: 0.8, // Esto debería animarse con un Timer después
+                    widthFactor: 0.8,
                     child: Container(
                       decoration: BoxDecoration(
                         color: config.isHard ? Colors.redAccent : Colors.cyanAccent,
@@ -201,73 +237,26 @@ class _GameScreenState extends State<GameScreen> {
             ),
           ),
           const SizedBox(width: 15),
-          _buildTopIcon(Icons.category_rounded, "${detail.itemsToCollect}"),
+          _buildTopIcon(Icons.category_rounded, "${detail.itemsToCollect}", Colors.amber),
           const SizedBox(width: 10),
-          _buildTopIcon(Icons.monetization_on_rounded, "${detail.coinsReward}"),
+          _buildTopIcon(Icons.monetization_on_rounded, "${detail.coinsReward}", AppColors.gold),
         ],
       ),
     );
   }
 
-  Widget _buildTopIcon(IconData icon, String label) {
+  Widget _buildTopIcon(IconData icon, String label, Color color) {
     return Row(
       children: [
-        Icon(icon, color: Colors.amber, size: 20),
+        Icon(icon, color: color, size: 20),
         const SizedBox(width: 4),
         Text(label, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
       ],
     );
   }
 
-  Widget _buildCameraPreview() {
+  Widget _buildBottomControls(GameScanController controller, BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
-        // Añadimos una sombra ligera para separar la cámara del fondo
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.5),
-            blurRadius: 15,
-            spreadRadius: -5,
-          ),
-        ],
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: (_isCameraInitialized)
-          ? CameraPreview(_controller!)
-          : const Center(child: CircularProgressIndicator(color: Colors.cyanAccent)),
-    );
-  }
-
-  Widget _buildObjectTarget(String name, bool isHard) {
-    return Positioned(
-      top: 30,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
-        decoration: BoxDecoration(
-          color: Colors.black.withValues(alpha: 0.6),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: isHard ? Colors.redAccent : Colors.cyanAccent.withValues(alpha: 0.5),
-          ),
-        ),
-        child: Text(
-          name.toUpperCase(),
-          style: TextStyle(
-            color: isHard ? Colors.redAccent : Colors.white,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 2,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBottomControls() {
-    return Container(
-      // Añadimos un fondo ligero a los controles inferiores para legibilidad
       margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.05),
@@ -279,28 +268,45 @@ class _GameScreenState extends State<GameScreen> {
         children: [
           _buildCircleButton(Icons.help_outline_rounded, () {}),
           
-          // Botón central de captura
-          GestureDetector(
-            onTap: () {
-              // Acción de capturar objeto
-              debugPrint("Object captured!"); 
-            },
-            child: Container(
-              padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.white.withValues(alpha: 0.1),
-                border: Border.all(color: Colors.cyanAccent, width: 3),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.cyanAccent.withValues(alpha: 0.3), 
-                    blurRadius: 15
+          Obx(() {
+            final isFound = controller.isTargetFound.value;
+            return GestureDetector(
+              onTap: () {
+                if (isFound) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("¡Éxito! Objeto capturado correctamente.")),
+                  );
+                  Navigator.pop(context);
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Aún no detecto el objeto correcto...")),
+                  );
+                }
+              },
+              child: Container(
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: isFound ? Colors.greenAccent.withValues(alpha: 0.2) : Colors.white.withValues(alpha: 0.1),
+                  border: Border.all(
+                    color: isFound ? Colors.greenAccent : Colors.cyanAccent, 
+                    width: 3
                   ),
-                ],
+                  boxShadow: [
+                    BoxShadow(
+                      color: (isFound ? Colors.greenAccent : Colors.cyanAccent).withValues(alpha: 0.3), 
+                      blurRadius: 15
+                    ),
+                  ],
+                ),
+                child: Icon(
+                  isFound ? Icons.check_circle_outline : Icons.camera_alt_rounded, 
+                  color: Colors.white, 
+                  size: 38
+                ),
               ),
-              child: const Icon(Icons.camera_alt_rounded, color: Colors.white, size: 38),
-            ),
-          ),
+            );
+          }),
 
           _buildCircleButton(Icons.location_on_rounded, () {}),
         ],

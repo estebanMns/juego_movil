@@ -1,0 +1,18 @@
+import 'package:ultralytics_yolo/ultralytics_yolo.dart';
+
+/// Responsabilidad: Configuración de rutas y parámetros del modelo YOLO.
+/// Centraliza los parámetros para facilitar el mantenimiento.
+class YoloService {
+  // Ruta del modelo asset
+  static const String modelPath = 'assets/yolov8n_float16.tflite';
+  
+  // Tarea que realiza el modelo
+  final YOLOTask task = YOLOTask.detect;
+
+  // Umbral de confianza por defecto
+  final double defaultConfidence = 0.45;
+
+  Future<void> logConfiguration() async {
+    print("YoloService: Modelo configurado en $modelPath");
+  }
+}
