@@ -77,6 +77,7 @@ flutter:
     - assets/images/
     - .env
     - assets/yolov8n_float16.tflite
+    - assets/labels.txt
 
   # To add assets to your application, add an assets section, like this:
   # assets:
