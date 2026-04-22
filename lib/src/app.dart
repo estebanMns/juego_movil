@@ -3,7 +3,7 @@ import 'pages/home_screen.dart';
 import 'pages/lobby_screen.dart';
 import 'pages/level_map.dart';
 import 'pages/level_detail.dart';
-import 'pages/game_screen.dart'; // IMPORTANTE: Asegúrate de que este archivo exista
+import 'pages/game_screen.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -18,18 +18,18 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         brightness: Brightness.dark,
       ),
-      
+
       // La pantalla con la que inicia la app
-      initialRoute: '/home', 
+      initialRoute: '/home',
 
       routes: {
         '/home': (context) => const Home(),
         '/lobby': (context) => const Lobby(),
         '/level-map': (context) => const Levelmap(),
         '/level-detail': (context) => const LevelDetailScreen(),
-        '/game-screen': (context) => const GameScreen(), // <-- ESTA ES LA LÍNEA QUE ARREGLA TU ERROR
+        '/game-screen': (context) => const GameScreen(),
       },
-      
+
       // Esto ayuda por si hay errores de navegación
       onUnknownRoute: (settings) {
         return MaterialPageRoute(builder: (context) => const Home());
